@@ -1,0 +1,70 @@
+{
+  "name": "texas-poker-front",
+  "version": "1.0.0",
+  "private": true,
+  "description": "texas-poker-mobile",
+  "templateInfo": {
+    "name": "h5-youshu",
+    "typescript": false,
+    "css": "sass"
+  },
+  "scripts": {
+    "build:h5": "taro build --type h5",
+    "build:weapp": "taro build --type weapp",
+    "build:swan": "taro build --type swan",
+    "build:alipay": "taro build --type alipay",
+    "build:tt": "taro build --type tt",
+    "build:qq": "taro build --type qq",
+    "dev:h5": "npm run build:h5 -- --watch",
+    "dev:weapp": "npm run build:weapp -- --watch",
+    "dev:swan": "npm run build:swan -- --watch",
+    "dev:alipay": "npm run build:alipay -- --watch",
+    "dev:tt": "npm run build:tt -- --watch",
+    "dev:qq": "npm run build:qq -- --watch"
+  },
+  "browserslist": [
+    "last 3 versions",
+    "Android >= 4.1",
+    "ios >= 8"
+  ],
+  "author": "",
+  "dependencies": {
+    "@babel/runtime": "^7.7.7",
+    "@nutui/nutui-react-taro": "^1.4.2",
+    "@tarojs/components": "3.5.11",
+    "@tarojs/helper": "3.5.11",
+    "@tarojs/plugin-framework-react": "3.5.11",
+    "@tarojs/plugin-platform-alipay": "3.5.11",
+    "@tarojs/plugin-platform-jd": "3.5.11",
+    "@tarojs/plugin-platform-qq": "3.5.11",
+    "@tarojs/plugin-platform-swan": "3.5.11",
+    "@tarojs/plugin-platform-tt": "3.5.11",
+    "@tarojs/plugin-platform-weapp": "3.5.11",
+    "@tarojs/react": "3.5.11",
+    "@tarojs/router": "3.5.11",
+    "@tarojs/runtime": "3.5.11",
+    "@tarojs/shared": "3.5.11",
+    "@tarojs/taro": "3.5.11",
+    "@tarojs/taro-h5": "3.5.11",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "sr-sdk-h5": "^1.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.0",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.5",
+    "@tarojs/cli": "3.5.11",
+    "@tarojs/webpack5-runner": "3.5.11",
+    "@types/react": "^18.0.0",
+    "@types/webpack-env": "^1.13.6",
+    "babel-preset-taro": "3.5.11",
+    "eslint": "^8.12.0",
+    "eslint-config-taro": "3.5.11",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-react": "^7.8.2",
+    "eslint-plugin-react-hooks": "^1.6.1",
+    "react-refresh": "^0.11.0",
+    "stylelint": "9.3.0",
+    "webpack": "5.69.0"
+  }
+}
