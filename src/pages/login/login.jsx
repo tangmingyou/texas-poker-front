@@ -2,6 +2,7 @@ import React, { Component, useState } from 'react'
 import {View, Text} from '@tarojs/components'
 import { Progress } from '@nutui/nutui-react-taro';
 import { Form, Input, TextArea, Cell, Button, Row, Col, Image } from '@nutui/nutui-react-taro';
+import { message } from '../../compiled'
 
 import './login.scss'
 
@@ -9,6 +10,13 @@ import './login.scss'
   登录 -> 大厅 -> 新桌面 -> 进桌面 -> profile(弹窗)
 */
 function Login(props, ref) {
+  // protobuf
+  // let msg = message.Proto.create({ver:1, seq:1, op: 1});
+  // let buffer = message.Proto.encode(msg).finish();
+  // console.log(buffer)
+  // let decoded = message.Proto.decode(buffer);
+  // console.log(decoded)
+  // console.log(message)
 
     const [state, setState] = useState({
       username: '',
