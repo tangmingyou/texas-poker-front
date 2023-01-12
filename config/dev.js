@@ -1,3 +1,5 @@
+const target = 'http://localhost:9999';
+
 module.exports = {
   env: {
     NODE_ENV: '"development"'
@@ -5,5 +7,17 @@ module.exports = {
   defineConstants: {
   },
   mini: {},
-  h5: {}
+  h5: {
+    devServer: {
+      host: '0.0.0.0',
+      port: 10086,
+      // 设置代理来解决 H5 请求的跨域问题
+      proxy: {
+        '/api': {
+          target,
+          changeOrigin: true
+        }
+      }
+    }
+  }
 }

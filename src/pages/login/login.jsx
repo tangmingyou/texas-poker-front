@@ -1,9 +1,9 @@
 import React, { Component, useState } from 'react'
-import {View, Text} from '@tarojs/components'
-import { Progress } from '@nutui/nutui-react-taro';
-import { Form, Input, TextArea, Cell, Button, Row, Col, Image } from '@nutui/nutui-react-taro';
-import { api } from '../../proto'
-
+import {View, Text, Input, Image, Button} from '@tarojs/components'
+import Taro from '@tarojs/taro';
+//import { Progress } from '@nutui/nutui-react-taro';
+//import { Form, Input, TextArea, Cell, Button, Row, Col, Image } from '@nutui/nutui-react-taro';
+import ws from '@/api/websocket'
 import './login.scss'
 
 /*
@@ -16,7 +16,6 @@ function Login(props, ref) {
   // console.log(buffer)
   // let decoded = message.Proto.decode(buffer);
   // console.log(decoded)
-  console.log(api)
 
     const [state, setState] = useState({
       username: '',
@@ -24,8 +23,8 @@ function Login(props, ref) {
       captcha: '',
     });
     const [capatcha, setCapatcha] = useState({
-      origin: "http://localhost:7788/app/captcha",
-      src: "http://localhost:7788/app/captcha",
+      origin: "http://localhost:9999/api/auth/captcha",
+      src: "http://localhost:9999/api/auth/captcha",
     })
     const usernameChange = (username, e) => {
       if (!e) return;
@@ -39,43 +38,19 @@ function Login(props, ref) {
     }
     const handleSubmit = () => {
       console.log('submit', state)
-      // websocket test
-      const ws = new WebSocket("ws://localhost:9999/ws")
-      ws.binaryType = 'arraybuffer'
-      ws.onopen = (e) => {
-        // 连接后立即认证连接
-        const token = "AgOjcdf3goeYDX3lwWWwkXtVpcrL-l2rX8csrRKgs3_-BC3JOx0l6nZU0MV25eIn"
-        const req = api.ReqIdentity.create({token})
-        const reqBuffer = api.ReqIdentity.encode(req).finish()
-        const wrap = api.ProtoWrap.create({ver:1, op: 13578 + 3, seq:1, body: reqBuffer})
-        const wrapBuffer = api.ProtoWrap.encode(wrap).finish()
-        ws.send(wrapBuffer)
-        console.log('send', req, wrap)
-      }
-      ws.onmessage = (e) => {
-          console.log('msg:', e.data)
-          const wrap = api.ProtoWrap.decode(new Uint8Array(e.data))
-          const res = api.ResIdentity.decode(wrap.body)
-          console.log(wrap.op, res)
-      }
-      ws.onerror = (a,b,c) => {
-          console.log('error:', a, b, c)
-      }
-      ws.onclose = e => {
-        console.log('close', e)
-      }
+      const token = "AgOjcdf3goeYDX3lwWWwkXtVpcrL-l2rX8csrRKgs3_-BC3JOx0l6nZU0MV25eIn"
+      ws.init(token)
     }
     return (
       <View className='login'>
         <Text>Hello Login Page!</Text>
-        <Progress percentage="33" />
-        <Row>
-          <Col span="4"></Col>
-          <Col span="20"><Input name="username" type="text" defaultValue={state.username}  placeholder="文本" leftIcon="dongdong"
-            onChange={usernameChange}/></Col>
-        </Row>
+        {/* <Progress percentage="33" /> */}
+        <View>
+          <Input name="username" type="text" defaultValue={state.username}  placeholder="文本" leftIcon="dongdong"
+              onChange={usernameChange}/>
+        </View>
         <View className='input-1'>
-          <Input name="password" type="password" defaultValue={state.password}  placeholder="文本" 
+          <Input name="password" type="password" defaultValue={state.password}  placeholder="文本"
             onChange={passwordChange}/>
         </View>
         <View className='input-1'>
@@ -83,6 +58,7 @@ function Login(props, ref) {
         </View>
         <View className='input-1'>
           <Button type="primary" style={{width: '160px'}} onClick={handleSubmit}>提交</Button>
+          <Button type="primary" style={{width: '160px'}} onClick={() => {Taro.navigateTo({url:'/pages/lobby/lobby'})}}>跳转</Button>
         </View>
       </View>
     )

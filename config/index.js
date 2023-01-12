@@ -1,14 +1,25 @@
+const path = require('path')
+
 const config = {
+  alias: {
+    '@/api': path.resolve(__dirname, '..', 'src/api'),
+    '@/pages': path.resolve(__dirname, '..', 'src/pages'),
+    '@/components': path.resolve(__dirname, '..', 'src/components'),
+    '@/assets': path.resolve(__dirname, '..', 'src/assets'),
+    '@/store': path.resolve(__dirname, '..', 'src/store'),
+    '@/utils': path.resolve(__dirname, '..', 'src/utils')
+  },
   projectName: 'texas-poker-front',
   date: '2023-1-6',
-  designWidth: 750,
+  designWidth: 428, // 750,
   deviceRatio: {
     640: 2.34 / 2,
     750: 1,
-    828: 1.81 / 2
+    828: 1.81 / 2,
+    428: 750 / 428
   },
   sourceRoot: 'src',
-  outputRoot: 'dist',
+  outputRoot: `dist/${process.env.TARO_ENV}`,
   plugins: [],
   defineConstants: {
   },

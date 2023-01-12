@@ -1,17 +1,23 @@
 import { Component } from 'react'
 import SDK from 'sr-sdk-h5'
 
+import { Provider } from 'react-redux'
+import store from './store'
+
 import './app.scss'
-import '@nutui/nutui-react-taro/dist/style.css'
+
+// IOS Promise finally 兼容
+const promiseFinally = require('promise.prototype.finally');
+promiseFinally.shim();
 
 /**
    * 有数埋点SDK 默认配置
    * 使用方法请参考文档 https://mp.zhls.qq.com/youshu-docs/develop/sdk/Taro.html
    * 如对有数SDK埋点接入有任何疑问，请联系微信：sr_data_service
    */
-  
- window.srt = new SDK({
-  
+
+window.srt = new SDK({
+
   /**
    * 有数 - ka‘接入测试用’ 分配的 app_id，对应的业务
    */
@@ -59,15 +65,20 @@ import '@nutui/nutui-react-taro/dist/style.css'
 // window.srt.setUser({user_id: 'xxx'}) // 设置用户信息，用户信息将会被设置在props.wx_user对象中
 
 class App extends Component {
-  componentDidMount () {}
+  componentDidMount() { }
 
-  componentDidShow () {}
+  componentDidShow() { }
 
-  componentDidHide () {}
+  componentDidHide() { }
 
   // this.props.children 是将要会渲染的页面
-  render () {
-    return this.props.children
+  render() {
+    return (
+      <Provider store={store}>
+        {this.props.children}
+      </Provider>
+    )
+
   }
 }
 
