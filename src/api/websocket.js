@@ -1,16 +1,23 @@
-import { api } from '@/api/proto'
-import { showRedPackage } from '@tarojs/taro-h5';
+import proto from '@/api/proto';
+
+const { api } = proto
 
 const websocket = {
   conn: null,
-  opMap: {},
   state: 0, // 0未初始,1打开,2关闭
   seq: 1, // 消息序号
-  init(token, opMap) {
-    if (opMap) {
-      this.opMap = opMap;
-    }
+  offset: 0,
+  failOp: 0,
+  opPathMap: {},
+  nameOpMap: {},
+  init(token, { offset, failOp, opPathMap, nameOpMap }) {
+    this.offset = offset || 0;
+    this.failOp = failOp;
+    this.opPathMap = opPathMap || {};
+    this.nameOpMap = nameOpMap || {};
+    // window.proto = proto;
     // websocket test
+
     const ws = new WebSocket("ws://localhost:9999/api/conn/ws")
     this.conn = ws
     console.log(this)
@@ -19,39 +26,68 @@ const websocket = {
       // 连接后立即认证连接
       const req = api.ReqIdentity.create({ token })
       // const reqBuffer = api.ReqIdentity.encode(req).finish()
-      this.send(req)
+      this.send(req, res => {
+        console.log('call1:', res)
+      }, err => {
+        console.log('call2:', err)
+      })
     }
     ws.onmessage = (e) => {
       console.log('msg:', e.data)
       const wrap = api.ProtoWrap.decode(new Uint8Array(e.data))
-      const res = api.ResIdentity.decode(wrap.body)
+      // 解码响应体
+      const opPath = this.opPathMap[wrap.op]
+      if (!opPath) {
+        console.log('res op not exists!', wrap.op)
+        return
+      }
+      const res = proto[opPath[0]][opPath[1]].decode(wrap.body)
+      // const res = api.ResIdentity.decode(wrap.body)
+      console.log(wrap, res)
       if (wrap.seq !== 0) {
         // 对应请求callback
-        const waitCall = this.waitCall[wrap.req]
+        const waitCall = this.waitCall[wrap.seq];
+        delete this.waitCall[wrap.seq];
+        console.log(waitCall, this.waitCall);
         if (waitCall) {
-          waitCall.onRes(res)
+          if (wrap.op === failOp) {
+            waitCall.onFail(res, wrap);
+          } else {
+            waitCall.onRes(res, wrap);
+          }
           return;
         }
       }
       // 找消息类型的listen执行
-      const listener = this.msgListener[wrap.op]
+      const listener = this.msgListener[wrap.op];
       if (listener) {
         listener(res)
+        return;
       }
-      // console.log(wrap.op, res)
+      console.log('no handler msg:', wrap.op, res)
     }
     ws.onerror = (a, b, c) => {
       console.log('error:', a, b, c)
+      // var interval = setInterval(() => {
+      //   this.reconnect();
+      // }, Math.random() * 3);
     }
     ws.onclose = e => {
       console.log('close', e)
     }
   },
+  reconnect() {
 
+  },
   waitCall: {}, // 等待响应的 callback 列表
   send(msg, resCall, errCall) {
+    let typeUrl = msg.constructor.getTypeUrl();
+    const idx = typeUrl.lastIndexOf("/");
+    typeUrl = idx === -1 ? typeUrl : typeUrl.substring(idx + 1);
+    const op = this.nameOpMap[typeUrl];
+    console.log(typeUrl, op);
     const msgBufer = msg.constructor.encode(msg).finish();
-    const wrap = api.ProtoWrap.create({ ver: 1, op: 13578 + 3, seq: this.seq++, body: msgBufer });
+    const wrap = api.ProtoWrap.create({ ver: 1, op: op, seq: this.seq++, body: msgBufer });
     const wrapBuffer = api.ProtoWrap.encode(wrap).finish();
     this.conn.send(wrapBuffer);
     if (resCall) {

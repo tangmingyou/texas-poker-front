@@ -45,7 +45,7 @@ const fetch = function (method, url, params) {
                         })
                     }
 
-                    if (res.statusCode !== 200 || !res.data || res.data.code !== 200) {
+                    if (res.statusCode !== 200 || res.data.code) { // || !res.data
                         return reject(res.data || {});
                     }
                     resolve(res.data);

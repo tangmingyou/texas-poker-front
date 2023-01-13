@@ -1,10 +1,11 @@
 import React, { Component, useState } from 'react'
-import {View, Text, Input, Image, Button} from '@tarojs/components'
+import { View, Text, Input, Image, Button } from '@tarojs/components'
 import Taro from '@tarojs/taro';
 //import { Progress } from '@nutui/nutui-react-taro';
 //import { Form, Input, TextArea, Cell, Button, Row, Col, Image } from '@nutui/nutui-react-taro';
 import ws from '@/api/websocket'
 import './login.scss'
+import { fetchOpMap } from '@/api/api'
 
 /*
   登录 -> 大厅 -> 新桌面 -> 进桌面 -> profile(弹窗)
@@ -39,7 +40,15 @@ function Login(props, ref) {
     const handleSubmit = () => {
       console.log('submit', state)
       const token = "AgOjcdf3goeYDX3lwWWwkXtVpcrL-l2rX8csrRKgs3_-BC3JOx0l6nZU0MV25eIn"
-      ws.init(token)
+      fetchOpMap()
+        .then(res => {
+          console.log('opMap', res)
+          ws.init(token, res.data)
+        })
+        .catch(err => {
+          console.log('err', err)
+        })
+
     }
     return (
       <View className='login'>

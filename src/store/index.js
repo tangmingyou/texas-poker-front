@@ -1,5 +1,7 @@
 import { configureStore, combineReducers, createSlice } from '@reduxjs/toolkit'
 
+import connSlice from '@/store/conn'
+
 const counterSlice = createSlice({
     name: 'counter',
     initialState: { value: 0 },
@@ -13,9 +15,11 @@ const counterSlice = createSlice({
     }
 })
 
+// redux-toolkit: https://redux-toolkit.js.org/usage/immer-reducers
 const store = configureStore({
     reducer: {
-        counter: counterSlice.reducer
+        counter: counterSlice.reducer,
+        conn: connSlice.reducer,
     }
 })
 
