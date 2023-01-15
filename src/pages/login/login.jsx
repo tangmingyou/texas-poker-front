@@ -6,6 +6,8 @@ import Taro from '@tarojs/taro';
 import ws from '@/api/websocket'
 import './login.scss'
 import { fetchOpMap } from '@/api/api'
+import iconUser from '@/assets/icon/user-3-fill.svg'
+import iconLock from '@/assets/icon/lock-2-fill.svg'
 
 /*
   登录 -> 大厅 -> 新桌面 -> 进桌面 -> profile(弹窗)
@@ -52,20 +54,25 @@ function Login(props, ref) {
     }
     return (
       <View className='login'>
-        <Text>Hello Login Page!</Text>
+        <View className='ceiling'></View>
+        <View className='title-line'><Text className='title-1'>Player</Text></View>
+        <View className='title-line'><Text className='title-1'>Infomation</Text></View>
+        <View className='title-line'><Text className='title-2'>Easily add new account or login the current one.</Text></View>
         {/* <Progress percentage="33" /> */}
-        <View>
-          <Input name="username" type="text" defaultValue={state.username}  placeholder="文本" leftIcon="dongdong"
+        <View className='input-wrap'>
+          <Image className='input-icon' src={iconUser} />
+          <Input className="input-1" name="username" type="text" defaultValue={state.username}  placeholder="account" leftIcon="dongdong"
               onChange={usernameChange}/>
         </View>
-        <View className='input-1'>
-          <Input name="password" type="password" defaultValue={state.password}  placeholder="文本"
+        <View className='input-wrap'>
+          <Image className='input-icon' src={iconLock} />
+          <Input className='input-1' name="password" type="password" defaultValue={state.password}  placeholder="password"
             onChange={passwordChange}/>
         </View>
-        <View className='input-1'>
+        <View >
           <Image src={capatcha.src} width="107" height="36" onClick={() => setCapatcha({...capatcha, src: capatcha.origin + '?t=' + Math.random()})} />
         </View>
-        <View className='input-1'>
+        <View>
           <Button type="primary" style={{width: '160px'}} onClick={handleSubmit}>提交</Button>
           <Button type="primary" style={{width: '160px'}} onClick={() => {Taro.navigateTo({url:'/pages/lobby/lobby'})}}>跳转</Button>
         </View>
