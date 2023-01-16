@@ -6,6 +6,7 @@ import './new_table.scss'
 import Title from '@/components/title'
 import userIcon from '@/assets/icon/user-2.svg'
 import closeIcon from '@/assets/icon/close-1.svg'
+import addIcon from '@/assets/icon/add-2.svg'
 
 function NewTable() {
   const {username, nickname, avatar} = useSelector(state => state.user);
@@ -29,7 +30,9 @@ function NewTable() {
             <View key={i} className="playerRow">
               {
                 row.map((player, j) => (
-                  <View key={j} className="player-wrap">
+                  player.index === 5
+                  ? <View key={j} className='player empty-player'><Image className="empty-icon" src={addIcon} /></View>
+                  : <View key={j} className="player-wrap">
                     <View className="player-icon"><Image className="player-icon-img" src={userIcon} /></View>
                     <View className="close-icon"><Image className="close-icon-img" src={closeIcon} /></View>
                     <View className="player">
@@ -48,8 +51,8 @@ function NewTable() {
             <View className="nickname"><Text>{nickname}</Text></View>
           </View>
         </View>
-        <View>
-          <Button>CREATE</Button>
+        <View className='submit-btn-wrap'>
+          <Button className='submit-btn'>CREATE</Button>
         </View>
       </View>
     </View>

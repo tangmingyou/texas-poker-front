@@ -16,10 +16,18 @@
   }
   .player {
     width: 159px;
-    height: 101px;
+    height: 114px;
     background-color: #EE914E;
     text-align: center;
-    line-height: 101px;
+    line-height: 114px;
+  }
+  .empty-player {
+    background-color: #D8D8D8;
+  }
+  .empty-icon {
+    width: 85px;
+    height: 85px;
+    margin: 14.5px 0;
   }
   .player-icon {
     height: 50px;
@@ -57,6 +65,7 @@
     width: 405px;
     height: 83px;
     background-color: #EE914E;
+    display: flex;
   }
 
   .avatar-wrap {
@@ -66,5 +75,29 @@
     margin: 9px 0 0 9px;
     width: 66px;
     height: 66px;
+  }
+  .nickname {
+    font-size: 12px;
+    color: #fff;
+    // line-height: 40px;
+    // text-decoration: underline;
+    border-bottom: 1px solid #fff;
+    height: 26px;
+    margin-left: 13px;
+    margin-top: 10px;
+  }
+  .submit-btn-wrap {
+
+  }
+  .submit-btn {
+    width: 360px;
+    height: 42px;
+    background-color: #EE914E;
+    border-radius: 16px;
+    font-size: 16px;
+    line-height: 42px;
+    color: #fff;
+    font-weight: bold;
+    margin-top: 29px;
   }
 }

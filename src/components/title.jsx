@@ -1,7 +1,5 @@
 import React from 'react'
 import { View, Text, Image } from '@tarojs/components'
-// import { AtIcon } from 'taro-ui'
-import { Icon } from '@nutui/nutui-react-taro';
 import { navigateBack } from '@/utils/application'
 import left from '@/assets/icon/left-1.svg'
 import './style/title.scss'
