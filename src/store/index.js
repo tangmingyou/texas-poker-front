@@ -1,6 +1,7 @@
-import { configureStore, combineReducers, createSlice } from '@reduxjs/toolkit'
+import { configureStore, createSlice } from '@reduxjs/toolkit'
 
 import connSlice from '@/store/conn'
+import userSlice from '@/store/user'
 
 const counterSlice = createSlice({
     name: 'counter',
@@ -20,6 +21,7 @@ const store = configureStore({
     reducer: {
         counter: counterSlice.reducer,
         conn: connSlice.reducer,
+        user: userSlice.reducer,
     }
 })
 

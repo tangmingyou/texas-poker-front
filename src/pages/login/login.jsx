@@ -1,5 +1,5 @@
 import React, { Component, useState } from 'react'
-import { View, Text, Input, Image, Button } from '@tarojs/components'
+import { View, Text, Input, Image, Button, Label } from '@tarojs/components'
 import Taro from '@tarojs/taro';
 //import { Progress } from '@nutui/nutui-react-taro';
 //import { Form, Input, TextArea, Cell, Button, Row, Col, Image } from '@nutui/nutui-react-taro';
@@ -8,6 +8,7 @@ import './login.scss'
 import { fetchOpMap } from '@/api/api'
 import iconUser from '@/assets/icon/user-3-fill.svg'
 import iconLock from '@/assets/icon/lock-2-fill.svg'
+import abIcon from '@/assets/icon/a-b.svg'
 
 /*
   登录 -> 大厅 -> 新桌面 -> 进桌面 -> profile(弹窗)
@@ -25,9 +26,9 @@ function Login(props, ref) {
       password: '',
       captcha: '',
     });
-    const [capatcha, setCapatcha] = useState({
-      origin: "http://localhost:9999/api/auth/captcha",
-      src: "http://localhost:9999/api/auth/captcha",
+    const [captcha, setCaptcha] = useState({
+      origin: "/api/auth/captcha", // http://localhost:9999
+      src: "/api/auth/captcha",
     })
     const usernameChange = (username, e) => {
       if (!e) return;
@@ -60,19 +61,26 @@ function Login(props, ref) {
         <View className='title-line'><Text className='title-2'>Easily add new account or login the current one.</Text></View>
         {/* <Progress percentage="33" /> */}
         <View className='input-wrap'>
-          <Image className='input-icon' src={iconUser} />
-          <Input className="input-1" name="username" type="text" defaultValue={state.username}  placeholder="account" leftIcon="dongdong"
+          <Label for="username"><Image className='input-icon' src={iconUser} /></Label>
+          <Input className="input-1" id="username" name="username" type="text" defaultValue={state.username}  placeholder="account" leftIcon="dongdong"
               onChange={usernameChange}/>
         </View>
         <View className='input-wrap'>
           <Image className='input-icon' src={iconLock} />
-          <Input className='input-1' name="password" type="password" defaultValue={state.password}  placeholder="password"
+          <Input className='input-1' name="password" type="password" password={true} defaultValue={state.password}  placeholder="password"
             onChange={passwordChange}/>
         </View>
-        <View >
-          <Image src={capatcha.src} width="107" height="36" onClick={() => setCapatcha({...capatcha, src: capatcha.origin + '?t=' + Math.random()})} />
+        <View className='input-wrap'>
+          <Image className='input-icon' src={abIcon} />
+          <Input className='input-2' name="captcha" type="text" defaultValue={state.password}  placeholder="captcha"
+            onChange={() => {}}/>
+          <Image className='captcha' src={captcha.src} width="107" height="36"
+            onClick={() => setCaptcha({...captcha, src: captcha.origin + '?t=' + Math.random()})} />
         </View>
         <View>
+          <Button className='submit-btn'>START</Button>
+        </View>
+        <View style={{display: 'none'}}>
           <Button type="primary" style={{width: '160px'}} onClick={handleSubmit}>提交</Button>
           <Button type="primary" style={{width: '160px'}} onClick={() => {Taro.navigateTo({url:'/pages/lobby/lobby'})}}>跳转</Button>
         </View>
