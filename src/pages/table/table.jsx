@@ -1,5 +1,5 @@
 import React, { Component, useState } from 'react'
-import { View, Text, Image } from '@tarojs/components'
+import { View, Text, Image, Input, Button } from '@tarojs/components'
 import { useSelector } from 'react-redux'
 import cnames from 'classnames'
 
@@ -7,6 +7,7 @@ import './table.scss'
 import Title from '@/components/title'
 import Card from '@/components/card'
 import coinIcon from '@/assets/icon/coin-1.svg'
+import coin2Icon from '@/assets/icon/coin-2.svg'
 
 function Table() {
 
@@ -51,6 +52,59 @@ function Table() {
           </View>
         ))
       }
+      <View className="desktop-box">
+        <View className="desktop-wrap">
+          <View className="desktop-cards">
+            {
+              [1,2,3,4,5].map((item, i) => (
+                <Card key={i} w={42} h={48} dot={12} suit={2} />
+              ))
+            }
+          </View>
+          <View className="desktop-wallet">
+            <View className="d-wallet-icon">
+              <Image className="d-wallet-icon-img" src={coinIcon} />
+              <Text className="d-wallet-icon-text">POT</Text>
+            </View>
+            <View className="d-wallet-amount">22,088,000</View>
+          </View>
+        </View>
+        <View className="chatbox" style={{display: 'none'}}>
+          <View className='chat-window'>
+            <View className="line">Kelly(#1)进入了游戏</View>
+            <View className="line">Apollo(#2)进入了游戏</View>
+          </View>
+          <View className='chat-panel'>
+            <View><Input name="chat" type="text" placeholder="" /></View>
+            <View><Button>OK</Button></View>
+          </View>
+        </View>
+      </View>
+
+      <View className="self-box">
+        <View className="self-wrap">
+            <View className="hand-card1"><Card w={42} h={48} dot={12} suit={3} /></View>
+            <View className="hand-card2"><Card w={42} h={48} dot={12} suit={3} /></View>
+            <View className="hand-five">
+            {
+              [1,2,3,4,5].map((_, i) => (
+                <View key={i} className="hand-five-item"><Card w={30} h={36} dot={12} suit={2} /></View>
+              ))
+            }
+            </View>
+            <View className="s-info-wrap">
+              <View className="s-avatar"><Image className="s-avatar-img" src={avatar} /></View>
+              <View className="s-username"><Text>Prometheus</Text></View>
+            </View>
+            <View className="s-wallet-wrap">
+              <View className="s-w-amount-wrap">
+                <View className="s-w-amount-icon"><Image className="s-w-amount-icon-img" src={coin2Icon}/></View>
+                <View className="s-w-amount"><Text>3,000,000</Text></View>
+              </View>
+              <View className="s-w-pct"><Text>0%</Text></View>
+            </View>
+        </View>
+      </View>
     </View>
   )
 }

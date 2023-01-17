@@ -16,8 +16,19 @@ function Card(props) {
 
   return (
     <View className="card" style={{width: Taro.pxTransform(w || 42), height: h || 58}}>
-      <View className="dot"><Text style={{color: suit%2===0?'#FF4A0E':'#000'}}>{dots[dot || 0]}</Text></View>
-      <View className="suit-wrap"><Image className="suit" src={suits[suit || 0]} /></View>
+      <View className="dot" style={{
+        lineHeight: Taro.pxTransform(w / 3),
+        left: Taro.pxTransform(w / 8),
+      }}>
+        <Text style={{
+          color: suit % 2 === 0?'#FF4A0E':'#000', fontSize: Taro.pxTransform(w / 3)
+        }}>{dots[dot || 0]}</Text>
+      </View>
+      <View className="suit-wrap">
+        <Image className="suit" src={suits[suit || 0]} style={{
+          height: Taro.pxTransform((w || 42) / 2.3333)
+        }}/>
+      </View>
     </View>
   )
 }
