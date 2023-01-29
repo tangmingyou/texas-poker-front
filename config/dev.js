@@ -10,7 +10,7 @@ module.exports = {
   h5: {
     devServer: {
       //host: '0.0.0.0',
-      host: '192.168.0.102',
+      host: '192.168.3.102',
       port: 10086,
       // 设置代理来解决 H5 请求的跨域问题
       proxy: {
