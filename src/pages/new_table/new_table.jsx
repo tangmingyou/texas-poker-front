@@ -1,25 +1,51 @@
 import React, { Component, useState } from 'react'
 import { View, Text, Image, Button } from '@tarojs/components'
+import { Popup, Picker } from '@nutui/nutui-react-taro';
 import { useSelector } from 'react-redux'
 
 import './new_table.scss'
 import Title from '@/components/title'
+import { sendPromise } from '@/api/websocket'
+import proto from '@/api/proto';
+import { showToast } from '@/utils/application'
 import userIcon from '@/assets/icon/user-2.svg'
+import robotIcon from '@/assets/icon/robot-1.svg'
 import closeIcon from '@/assets/icon/close-1.svg'
 import addIcon from '@/assets/icon/add-2.svg'
 
+const { ReqCreateTable } = proto.api
+
 function NewTable() {
   const {username, nickname, avatar} = useSelector(state => state.user);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [choosingPlace, setChoosingPlace] = useState(-1);
 
-  const players = [1,2,3,4,5,6];
+  const [players, setPlayers] = useState([0,0,0,0,0,0]); // 0空位,1玩家,2机器人
   const playerRows = players.reduce((arr, item, idx) => {
     const row = parseInt(idx / 2);
     let rowArr = arr[row] || [];
     rowArr[idx % 2] = {index: idx, item};
     arr[row] = rowArr;
-    parseInt()
     return arr;
   }, []);
+
+  const createTable = async () => {
+    if (submitLoading) { return }
+    setSubmitLoading(true)
+
+    const req = ReqCreateTable.create({
+      players: players.filter(type => type === 1).length,
+      robots: players.filter(type => type === 2).length
+    })
+    try {
+      const res = await sendPromise(req)
+      console.log('finish', res)
+    }catch(err) {
+      showToast({title: err})
+    } finally {
+      setSubmitLoading(false)
+    }
+  }
 
   return (
     <View className="nt">
@@ -30,13 +56,16 @@ function NewTable() {
             <View key={i} className="playerRow">
               {
                 row.map((player, j) => (
-                  player.index === 5
-                  ? <View key={j} className='player empty-player'><Image className="empty-icon" src={addIcon} /></View>
+                  player.item === 0
+                  ? <View key={j} onClick={() => setChoosingPlace(player.index)} className='player empty-player'><Image className="empty-icon" src={addIcon} /></View>
                   : <View key={j} className="player-wrap">
-                    <View className="player-icon"><Image className="player-icon-img" src={userIcon} /></View>
-                    <View className="close-icon"><Image className="close-icon-img" src={closeIcon} /></View>
+                    <View className="player-icon"><Image className="player-icon-img" src={player.item === 1 ? userIcon : robotIcon} /></View>
+                    <View className="close-icon" onClick={() => {
+                      players[player.index] = 0;
+                      setPlayers([...players]);
+                    }}><Image className="close-icon-img" src={closeIcon} /></View>
                     <View className="player">
-                      <Text className="player-name">Player{player.item}</Text>
+                      <Text className="player-name">{player.item === 1 ? 'Player' : 'Robot'}#{player.index + 1}</Text>
                     </View>
                   </View>
                 ))
@@ -52,9 +81,20 @@ function NewTable() {
           </View>
         </View>
         <View className='submit-btn-wrap'>
-          <Button className='submit-btn'>CREATE</Button>
+          <Button className='submit-btn' loading={submitLoading} onClick={createTable}>CREATE</Button>
         </View>
       </View>
+
+      <Picker
+        title='Player OR Robot'
+        isVisible={choosingPlace > -1}
+        listData={[{value: 1, text: 'Player'}, {value: 2, text: 'Robot'}]}
+        onConfirm={(values) => {
+          players[choosingPlace] = values[0];
+          setPlayers([...players]);
+        }}
+        onClose={() => setChoosingPlace(-1)}
+       />
     </View>
   )
 }

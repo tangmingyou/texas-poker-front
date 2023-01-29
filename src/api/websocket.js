@@ -1,4 +1,5 @@
 import proto from '@/api/proto';
+import { fetchOpMap } from '@/api/api'
 
 const { api } = proto
 
@@ -7,12 +8,15 @@ const websocket = {
   state: 0, // 0未初始,1打开,2关闭
   seq: 1, // 消息序号
   offset: 0,
-  failOp: 0,
+  opFail: 0,
+  opSuccess: 0,
   opPathMap: {},
   nameOpMap: {},
-  init(token, { offset, failOp, opPathMap, nameOpMap }) {
+  init(token, { offset, opFail, opSuccess, opPathMap, nameOpMap }) {
+    // TODO 连接状态判定
     this.offset = offset || 0;
-    this.failOp = failOp;
+    this.opFail = opFail;
+    this.opSuccess = opSuccess;
     this.opPathMap = opPathMap || {};
     this.nameOpMap = nameOpMap || {};
     // window.proto = proto;
@@ -38,19 +42,19 @@ const websocket = {
       // 解码响应体
       const opPath = this.opPathMap[wrap.op]
       if (!opPath) {
-        console.log('res op not exists!', wrap.op)
+        console.error('res op not exists!', wrap.op)
         return
       }
       const res = proto[opPath[0]][opPath[1]].decode(wrap.body)
       // const res = api.ResIdentity.decode(wrap.body)
-      console.log(wrap, res)
+      console.log('res msg:',  res)
       if (wrap.seq !== 0) {
         // 对应请求callback
         const waitCall = this.waitCall[wrap.seq];
         delete this.waitCall[wrap.seq];
-        console.log(waitCall, this.waitCall);
+        // console.log(waitCall, this.waitCall);
         if (waitCall) {
-          if (wrap.op === failOp) {
+          if (wrap.op === opFail) {
             waitCall.onFail(res, wrap);
           } else {
             waitCall.onRes(res, wrap);
@@ -85,7 +89,7 @@ const websocket = {
     const idx = typeUrl.lastIndexOf("/");
     typeUrl = idx === -1 ? typeUrl : typeUrl.substring(idx + 1);
     const op = this.nameOpMap[typeUrl];
-    console.log(typeUrl, op);
+    console.log('req', typeUrl, op);
     const msgBufer = msg.constructor.encode(msg).finish();
     const wrap = api.ProtoWrap.create({ ver: 1, op: op, seq: this.seq++, body: msgBufer });
     const wrapBuffer = api.ProtoWrap.encode(wrap).finish();
@@ -108,3 +112,16 @@ const websocket = {
 }
 
 export default websocket
+
+export const sendPromise = function(msg) {
+  return new Promise((resolve, reject) => {
+    websocket.send(msg, resolve, reject)
+  })
+}
+
+;(async function() {
+  const token = "15PohpTztq4YkMmErI4H71kJWX2pPqnvOZar9HKOfg1KEy0fd8fUNxnBIwuMDcKQEBPG7b9UC7ja_8FtwvYjnA=="
+  const opMap = await fetchOpMap()
+  websocket.init(token, opMap.data)
+})()
+

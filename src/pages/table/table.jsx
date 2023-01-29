@@ -8,10 +8,14 @@ import Title from '@/components/title'
 import Card from '@/components/card'
 import coinIcon from '@/assets/icon/coin-1.svg'
 import coin2Icon from '@/assets/icon/coin-2.svg'
+import plus1Icon from '@/assets/icon/plus-1.svg'
+import sub1Icon from '@/assets/icon/sub-1.svg'
+import Taro from '@tarojs/taro'
+
 
 function Table() {
 
-  const {username, nickname, avatar} = useSelector(state => state.user);
+  const { username, nickname, avatar } = useSelector(state => state.user);
 
   const players = [1, 2, 3, 4, 5, 6];
   const playerRows = players.reduce((arr, item, idx) => {
@@ -32,7 +36,7 @@ function Table() {
             {
               row.map((player, j) => (
                 <View key={j} className="player-wrap">
-                  <View className={cnames("player-no",{"player-no-running": player.index===1})}><Text>#{player.index}</Text></View>
+                  <View className={cnames("player-no", { "player-no-running": player.index === 1 })}><Text>#{player.index}</Text></View>
                   <View className="card1"><Card w={42} h={48} dot={12} suit={2} /></View>
                   <View className="card2"><Card w={42} h={48} dot={12} suit={3} /></View>
                   <View className="player">
@@ -56,7 +60,7 @@ function Table() {
         <View className="desktop-wrap">
           <View className="desktop-cards">
             {
-              [1,2,3,4,5].map((item, i) => (
+              [1, 2, 3, 4, 5].map((item, i) => (
                 <Card key={i} w={42} h={48} dot={12} suit={2} />
               ))
             }
@@ -69,7 +73,7 @@ function Table() {
             <View className="d-wallet-amount">22,088,000</View>
           </View>
         </View>
-        <View className="chatbox" style={{display: 'none'}}>
+        <View className="chatbox" style={{ display: 'none' }}>
           <View className='chat-window'>
             <View className="line">Kelly(#1)进入了游戏</View>
             <View className="line">Apollo(#2)进入了游戏</View>
@@ -83,26 +87,42 @@ function Table() {
 
       <View className="self-box">
         <View className="self-wrap">
-            <View className="hand-card1"><Card w={42} h={48} dot={12} suit={3} /></View>
-            <View className="hand-card2"><Card w={42} h={48} dot={12} suit={3} /></View>
-            <View className="hand-five">
+          <View className="hand-card1"><Card w={42} h={48} dot={12} suit={3} /></View>
+          <View className="hand-card2"><Card w={42} h={48} dot={12} suit={3} /></View>
+          <View className="hand-five">
             {
-              [1,2,3,4,5].map((_, i) => (
+              [1, 2, 3, 4, 5].map((_, i) => (
                 <View key={i} className="hand-five-item"><Card w={30} h={36} dot={12} suit={2} /></View>
               ))
             }
-            </View>
-            <View className="s-info-wrap">
-              <View className="s-avatar"><Image className="s-avatar-img" src={avatar} /></View>
-              <View className="s-username"><Text>Prometheus</Text></View>
-            </View>
-            <View className="s-wallet-wrap">
-              <View className="s-w-amount-wrap">
-                <View className="s-w-amount-icon"><Image className="s-w-amount-icon-img" src={coin2Icon}/></View>
-                <View className="s-w-amount"><Text>3,000,000</Text></View>
+          </View>
+          <View className='u-opt' style={{ display: 'flex' }}>
+            <View>
+              <View className="s-info-wrap">
+                <View className="s-avatar"><Image className="s-avatar-img" src={avatar} /></View>
+                <View className="s-username"><Text>Prometheus</Text></View>
               </View>
-              <View className="s-w-pct"><Text>0%</Text></View>
+              <View className="s-wallet-wrap">
+                <View className="s-w-amount-wrap">
+                  <View className="s-w-amount-icon"><Image className="s-w-amount-icon-img" src={coin2Icon} /></View>
+                  <View className="s-w-amount"><Text>3,000,000</Text></View>
+                </View>
+                <View className="s-w-pct"><Text>0%</Text></View>
+              </View>
             </View>
+            <View className="control">
+              <View className="ctl-opt-wrap">
+                <View className="amount-input"><Input placeholder='stake' defaultValue={0} /></View>
+                <View className="amount-sub"><Image className="amount-sub-icon" src={sub1Icon} /></View>
+                <View className="amount-plus"><Image className="amount-plus-icon" src={plus1Icon} /></View>
+              </View>
+              <View className="ctl-opt-wrap" style={{ marginTop: Taro.pxTransform(10) }}>
+                <View className="ctl-opt"><Button className="ctl-opt-btn-1">让牌</Button></View>
+                <View className="ctl-opt"><Button className="ctl-opt-btn-2">弃牌</Button></View>
+                <View className="ctl-opt"><Button className="ctl-opt-btn-3">跟注</Button></View>
+              </View>
+            </View>
+          </View>
         </View>
       </View>
     </View>

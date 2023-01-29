@@ -22,7 +22,7 @@ function objUrlEncode(params) {
 
 // Http GET 请求
 const fetch = function (method, url, params) {
-    const token = getStorage('user_token');
+    const token = getStorage('_t');
     return new Promise(function (resolve, reject) {
         try {
             const data = objUrlEncode(params);

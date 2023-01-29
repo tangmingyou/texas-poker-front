@@ -5,8 +5,9 @@ import Taro from '@tarojs/taro'
 import { useSelector, useDispatch } from 'react-redux'
 
 import './lobby.scss'
+import { navigateTo } from '@/utils/application'
 import { increment } from '@/store/index'
-import { fetchOpMap } from '@/api/api'
+import { fetchOpMap, fetchLobbyView } from '@/api/api'
 import Title from '@/components/title'
 import coin1 from '@/assets/coin-1.png'
 import tabQuestion from '@/assets/tab-question.svg'
@@ -17,9 +18,13 @@ function Lobby() {
   const user = useSelector((state) => state.user)
   console.log(user)
   const dispatch = useDispatch()
-  fetchOpMap()
-    .then(res => { console.log(res) })
-    .catch(err => console.log(err))
+  fetchLobbyView()
+    .then(res => {
+      console.log('lobby', res)
+    })
+    .catch(err => {
+      console.error(err)
+    })
 
   const avatar = "https://img0.baidu.com/it/u=2477829979,2171947490&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500";
 
@@ -97,7 +102,7 @@ function Lobby() {
         <View className="tab-wrap"></View>
       </View>
       <View className="bottom-btn-wrap">
-        <Button className="bottom-btn" onClick={() => dispatch(increment())}>Create New Table</Button>
+        <Button className="bottom-btn" onClick={() => navigateTo({url: '/pages/new_table/new_table'})}>Create New Table</Button>
       </View>
     </View>
   )
