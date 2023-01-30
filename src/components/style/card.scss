@@ -1,6 +1,5 @@
 .card {
   border-radius: 5px;
-  border: 1px solid #000;
   position: relative;
   display: flex;
   justify-content: center;
@@ -21,4 +20,7 @@
     height: 18px;
     width: auto;
   }
+}
+.card-border {
+  border: 1px solid #000;
 }

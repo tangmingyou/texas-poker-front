@@ -11,6 +11,26 @@
   .player-wrap {
     // flex: 0 0 50%;
     position: relative;
+    display: flex;
+  }
+
+  .player-state-wrap {
+    height: 53px;
+    width: 39px;
+    // background-color: #F1D09F;
+    position: absolute;
+    left: -40px;
+    top: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .state-left {
+    position: absolute;
+    left: 157px;
+    top: 10px;
   }
 
   .player-no {
@@ -36,7 +56,7 @@
   .card2 {
     position: absolute;
     z-index: 999;
-    top: -27px;
+    top: -20px;
   }
 
   .card1 {
@@ -57,6 +77,10 @@
     // padding: 10px 4px;
     border: 1px solid #000;
     border-radius: 5px;
+  }
+
+  .player-wait {
+    background-color: #A8A29D;
   }
 
   .avatar-wrap {
@@ -96,6 +120,9 @@
     box-sizing: border-box;
     padding: 0 4px;
   }
+  .wallet-wait {
+    background-color: #A8A29D;
+  }
 
   .wallet-icon {
     //margin: 2px 0 2px 4px;
@@ -126,7 +153,7 @@
 
   .desktop-box {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     flex-wrap: nowrap;
     margin: 33px 26px 0 26px;
   }

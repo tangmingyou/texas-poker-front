@@ -86,7 +86,7 @@ function NewTable() {
       </View>
 
       <Picker
-        title='Player OR Robot'
+        title=''
         isVisible={choosingPlace > -1}
         listData={[{value: 1, text: 'Player'}, {value: 2, text: 'Robot'}]}
         onConfirm={(values) => {

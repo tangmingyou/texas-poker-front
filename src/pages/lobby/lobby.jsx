@@ -8,10 +8,15 @@ import './lobby.scss'
 import { navigateTo } from '@/utils/application'
 import { increment } from '@/store/index'
 import { fetchOpMap, fetchLobbyView } from '@/api/api'
+import { sendPromise } from '@/api/websocket'
+import proto from '@/api/proto'
 import Title from '@/components/title'
 import coin1 from '@/assets/coin-1.png'
-import tabQuestion from '@/assets/tab-question.svg'
-import tabX from '@/assets/tab-x.svg'
+import robotIcon from '@/assets/icon/robot-1.svg'
+import plusIcon from '@/assets/icon/plus-2.svg';
+import classNames from 'classnames';
+
+const {ReqLobbyView} = proto.api;
 
 class Lobby extends Component {
   constructor(props) {
@@ -25,14 +30,23 @@ class Lobby extends Component {
   }
 
   componentDidMount() {
-    fetchLobbyView()
-      .then(res => {
-        console.log('lobby', res)
-        this.setState({tables: res.data})
-      })
-      .catch(err => {
-        console.error(err)
-      })
+    sendPromise(ReqLobbyView.create())
+    .then(res => {
+      console.log('lobby res:', res)
+      this.setState({tables: res.tables})
+    })
+    .catch(err => {
+      console.log('lobby err:', err)
+    })
+
+    // fetchLobbyView()
+    //   .then(res => {
+    //     console.log('lobby', res)
+    //     this.setState({tables: res.data})
+    //   })
+    //   .catch(err => {
+    //     console.error(err)
+    //   })
   }
 
   render() {
@@ -51,13 +65,16 @@ class Lobby extends Component {
               <View className="circle-wrap">
                 <View className="circle-inner"><Image className="inner-coin" src={coin1} /></View>
                 {
-                  this.circleEle.map((_, idx) => (
-                    <View key={idx} className="circle-item" style={{
+                  table.players.map((player, j) => (
+                    <View key={j} className="circle-item" style={{
                       position: 'absolute',
-                      left: Taro.pxTransform(this.circleElePos[idx].x),
-                      top: Taro.pxTransform(this.circleElePos[idx].y)
+                      left: Taro.pxTransform(this.circleElePos[j].x),
+                      top: Taro.pxTransform(this.circleElePos[j].y)
                     }}>
-                      <Image className="circle-avatar" src={idx === 5 ? tabQuestion : idx === 6 ? tabX : this.state.defaultAvatar} />
+                      <Image
+                        className={classNames("circle-avatar", {'circle-icon': player.robot || !player.id})}
+                        src={player.robot ? robotIcon : !player.id ? plusIcon : (player.avatar || this.state.defaultAvatar)}
+                      />
                     </View>
                   ))
                 }

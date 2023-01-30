@@ -30,12 +30,26 @@
     width: 80px;
     border-radius: 50%;
   }
+  .circle-item {
+    background-color: #E8E8E8;
+    height: 29px;
+    width: 29px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   .circle-avatar {
     height: 29px;
     width: 29px;
     border-radius: 50%;
   }
+  .circle-icon {
+    height: 20px;
+    width: 20px;
 
+  }
 }
 .bottom-btn-wrap {
   position: fixed;
