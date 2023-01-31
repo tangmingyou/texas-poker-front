@@ -5,7 +5,7 @@ const { api } = proto
 
 const websocket = {
   conn: null,
-  state: 0, // 0未初始,1打开,2关闭
+  state: 0, // 0未初始,1打开,2关闭 TODO 未连接,连接中 方法等待队列
   seq: 1, // 消息序号
   offset: 0,
   opFail: 0,

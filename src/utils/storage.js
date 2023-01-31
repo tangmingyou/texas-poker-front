@@ -4,7 +4,9 @@ export function setStorage(key, value){
     // return  localStorage.setItem('user_token', token)
     try {
        return Taro.setStorageSync(key, value)
-    } catch (e) { }
+    } catch (e) {
+      console.error('setStorage', e)
+    }
 }
 
 export function getStorage(key){
@@ -12,7 +14,7 @@ export function getStorage(key){
     try {
         return Taro.getStorageSync(key)
     } catch (e) {
-    // Do something when catch error
+      console.error('getStorage', e)
     }
 }
 
@@ -20,5 +22,6 @@ export function removeStorage(key){
     try {
         return Taro.removeStorageSync(key)
     } catch (e) {
+      console.error('removeStorage', e)
     }
 }
