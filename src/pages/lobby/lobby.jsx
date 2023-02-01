@@ -5,10 +5,10 @@ import Taro from '@tarojs/taro'
 import { useSelector, useDispatch } from 'react-redux'
 
 import './lobby.scss'
-import { navigateTo } from '@/utils/application'
+import { navigateTo, redirectTo, showToast } from '@/utils/application'
 import { increment } from '@/store/index'
 import { fetchOpMap, fetchLobbyView } from '@/api/api'
-import { sendPromise } from '@/api/websocket'
+import { reqLobbyView, reqJoinTable } from '@/api/wsapi'
 import proto from '@/api/proto'
 import Title from '@/components/title'
 import coin1 from '@/assets/coin-1.png'
@@ -30,14 +30,16 @@ class Lobby extends Component {
   }
 
   componentDidMount() {
-    sendPromise(ReqLobbyView.create())
-    .then(res => {
-      console.log('lobby res:', res)
-      this.setState({tables: res.tables})
-    })
-    .catch(err => {
-      console.log('lobby err:', err)
-    })
+    setTimeout(() => {
+      reqLobbyView()
+        .then(res => {
+          console.log('lobby res:', res)
+          this.setState({tables: res.tables})
+        })
+        .catch(err => {
+          console.log('lobby err:', err)
+        })
+    }, 1500)
 
     // fetchLobbyView()
     //   .then(res => {
@@ -49,11 +51,21 @@ class Lobby extends Component {
     //   })
   }
 
+  async handleJoinTable(table) {
+    try {
+      const res = await reqJoinTable(table.tableNo)
+      redirectTo({url: '/pages/table/table'})
+      // console.log('join res...', res)
+    }catch(err) {
+      showToast({title: err})
+    }
+  }
+
   render() {
     // const count = useSelector((state) => state.counter.value)
     // const user = useSelector((state) => state.user)
 
-    console.log('state', this.state)
+    // console.log('state', this.state)
     return (
       <View>
         <Title title={"Lobby!!"} bgColor={true}  />
@@ -61,7 +73,7 @@ class Lobby extends Component {
         <View className="tab">
           {
             this.state.tables.map((table, i) => (
-              <View key={table.TableNo} className="tab-wrap" onClick={() => {console.log('join', table)}}>
+              <View key={table.tableNo} className="tab-wrap" onClick={this.handleJoinTable.bind(this, table)}>
               <View className="circle-wrap">
                 <View className="circle-inner"><Image className="inner-coin" src={coin1} /></View>
                 {
@@ -87,7 +99,7 @@ class Lobby extends Component {
             ))
           }
 
-          <View className="tab-wrap"></View>
+          <View key="tab-wrap" className="tab-wrap"></View>
         </View>
         <View className="bottom-btn-wrap">
           <Button className="bottom-btn" onClick={() => navigateTo({url: '/pages/new_table/new_table'})}>Create New Table</Button>

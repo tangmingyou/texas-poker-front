@@ -54,7 +54,7 @@ export const navigateBack = function(option = {delta: 1}) {
   return Taro.navigateBack(option);
 }
 
-export const showToast = function(option = {icon: 'success'}) {
+export const showToast = function(option = {title: '', icon: 'none'}) {
   let {title} = option
   if (!title) { return }
   title = typeof(title) === 'string' ? title : title.msg || title.message;
@@ -62,5 +62,7 @@ export const showToast = function(option = {icon: 'success'}) {
     console.log('no title toast:', option.title)
     return
   }
+  option.title = title
+  option.icon = option.icon || 'none';
   Taro.showToast(option)
 }

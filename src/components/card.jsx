@@ -12,7 +12,17 @@ import cardBack1 from '@/assets/card-back-1.svg'
 import cardBack2 from '@/assets/card-back-2.svg'
 import cardBack3 from '@/assets/card-back-3.svg'
 
-const suits = [suit0Icon, suit1Icon, suit2Icon, suit3Icon];
+const suits = {
+  0: suit0Icon,
+  1: suit1Icon,
+  2: suit2Icon,
+  3: suit3Icon,
+
+  D: suit0Icon,
+  C: suit1Icon,
+  H: suit2Icon,
+  S: suit3Icon,
+};
 const dots = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
 function Card(props) {

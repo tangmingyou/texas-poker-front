@@ -50,14 +50,14 @@ const websocket = {
       console.log('res msg:',  res)
       if (wrap.seq !== 0) {
         // 对应请求callback
-        const waitCall = this.waitCall[wrap.seq];
+        const caller = this.waitCall[wrap.seq];
         delete this.waitCall[wrap.seq];
         // console.log(waitCall, this.waitCall);
-        if (waitCall) {
+        if (caller) {
           if (wrap.op === opFail) {
-            waitCall.onFail(res, wrap);
+            caller.onFail(res, wrap);
           } else {
-            waitCall.onRes(res, wrap);
+            caller.onRes(res, wrap);
           }
           return;
         }
@@ -98,7 +98,7 @@ const websocket = {
       this.waitCall[wrap.seq] = {
         seq: wrap.seq,
         onRes: resCall,
-        onError: errCall,
+        onFail: errCall,
       }
     }
     // 定时检查是否超时...

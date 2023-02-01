@@ -3,6 +3,7 @@ import { View, Text, Image, Button } from '@tarojs/components'
 import { Popup, Picker } from '@nutui/nutui-react-taro';
 import { useSelector } from 'react-redux'
 
+import { redirectTo } from '@/utils/application'
 import './new_table.scss'
 import Title from '@/components/title'
 import { sendPromise } from '@/api/websocket'
@@ -38,8 +39,8 @@ function NewTable() {
       robots: players.filter(type => type === 2).length
     })
     try {
-      const res = await sendPromise(req)
-      console.log('finish', res)
+      const _ = await sendPromise(req)
+      redirectTo({url: '/pages/table/table'})
     }catch(err) {
       showToast({title: err})
     } finally {
