@@ -14,7 +14,9 @@ import Title from '@/components/title'
 import coin1 from '@/assets/coin-1.png'
 import robotIcon from '@/assets/icon/robot-1.svg'
 import plusIcon from '@/assets/icon/plus-2.svg';
-import classNames from 'classnames';
+import refreshIcon from '@/assets/icon/refresh-fill.svg';
+
+import cnames from 'classnames';
 
 const {ReqLobbyView} = proto.api;
 
@@ -24,6 +26,7 @@ class Lobby extends Component {
     this.state = {
       tables: [],
       defaultAvatar: "https://img0.baidu.com/it/u=2477829979,2171947490&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+      lobbyLoading: false,
     }
     this.circleEle = [1,2,3,4,5,6,7];
     this.circleElePos = [{x:16,y:8},{x:70,y:-3},{x:110,y:28},{x:115,y:70},{x:80,y:105},{x:20,y:100},{x:-2,y:60}];
@@ -31,16 +34,8 @@ class Lobby extends Component {
 
   componentDidMount() {
     setTimeout(() => {
-      reqLobbyView()
-        .then(res => {
-          console.log('lobby res:', res)
-          this.setState({tables: res.tables})
-        })
-        .catch(err => {
-          console.log('lobby err:', err)
-        })
+      this.handleReqLobbyView();
     }, 1500)
-
     // fetchLobbyView()
     //   .then(res => {
     //     console.log('lobby', res)
@@ -49,6 +44,28 @@ class Lobby extends Component {
     //   .catch(err => {
     //     console.error(err)
     //   })
+  }
+
+  handleReqLobbyView = () => {
+    if (this.state.lobbyLoading) {
+      showToast({title: '加载中...'})
+      return
+    }
+    this.setState({lobbyLoading: true}, () => {
+      setTimeout(() => {
+        reqLobbyView()
+          .then(res => {
+            console.log('lobby res:', res)
+            this.setState({tables: res.tables})
+          })
+          .catch(err => {
+            console.log('lobby err:', err)
+          })
+          .finally(() => {
+            this.setState({lobbyLoading: false})
+          })
+      }, 1000)
+    })
   }
 
   async handleJoinTable(table) {
@@ -68,7 +85,12 @@ class Lobby extends Component {
     // console.log('state', this.state)
     return (
       <View>
-        <Title title={"Lobby!!"} bgColor={true}  />
+        <Title title={"Lobby!!"} bgColor={true} leftSolt={
+          <Image className={cnames("refresh-icon", {'refresh-icon-rotate': this.state.lobbyLoading})}
+            src={refreshIcon}
+            onClick={this.handleReqLobbyView}
+          />
+        }/>
         <View className="celling"></View>
         <View className="tab">
           {
@@ -84,7 +106,7 @@ class Lobby extends Component {
                       top: Taro.pxTransform(this.circleElePos[j].y)
                     }}>
                       <Image
-                        className={classNames("circle-avatar", {'circle-icon': player.robot || !player.id})}
+                        className={cnames("circle-avatar", {'circle-icon': player.robot || !player.id})}
                         src={player.robot ? robotIcon : !player.id ? plusIcon : (player.avatar || this.state.defaultAvatar)}
                       />
                     </View>

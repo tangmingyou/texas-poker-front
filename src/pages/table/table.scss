@@ -52,6 +52,18 @@
     background-color: #EE914E;
   }
 
+  .kickout {
+    position: absolute;
+    z-index: 99;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+  }
+  .kickout-icon {
+    top: 5px;
+    left: 125px;
+  }
+
   .card1,
   .card2 {
     position: absolute;
@@ -85,6 +97,10 @@
 
   .avatar-wrap {
     margin: 10px 0 10px 4px;
+    height: 50px;
+    width: 50px;
+    border-radius: 5px;
+    background-color: #D8D8D8;
   }
 
   .avatar {
@@ -352,6 +368,7 @@
     display: flex;
     width: 170px;
     justify-content: space-between;
+    margin-top: 10px;
   }
 
   .amount-input {
@@ -390,7 +407,10 @@
 
   .ctl-opt-btn-1,
   .ctl-opt-btn-2,
-  .ctl-opt-btn-3 {
+  .ctl-opt-btn-3,
+  .ctl-opt-btn-4,
+  .ctl-opt-btn-5,
+  .ctl-opt-btn-6 {
     width: 53.25px;
     height: 24px;
     border-radius: 8px;
@@ -414,5 +434,31 @@
   .ctl-opt-btn-3 {
     background-color: #FF4400;
     color: #F1D09F;
+  }
+
+  .ctl-opt-btn-4,
+  .ctl-opt-btn-5,
+  .ctl-opt-btn-6 {
+    width: 79.2px;
+  }
+  .ctl-opt-btn-4 {
+    background-color: #F1D09F;
+    color: #D05959;
+  }
+  .ctl-opt-btn-5 {
+    background-color: #48C25D;
+    color: #FFF;
+  }
+  .ctl-opt-btn-5-ready {
+    background-color: #6AAD76;
+    color: #FFF;
+  }
+  .ctl-opt-btn-6 {
+    background-color: #FF4400;
+    color: #F1D09F;
+  }
+  .ctl-opt-btn-disable {
+    background-color: #A8A29D;
+    color: #FFF;
   }
 }
