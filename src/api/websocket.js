@@ -172,6 +172,9 @@ export const sendPromise = function(msg) {
 ;(async function() {
   // const token = "15PohpTztq4YkMmErI4H71kJWX2pPqnvOZar9HKOfg1KEy0fd8fUNxnBIwuMDcKQEBPG7b9UC7ja_8FtwvYjnA=="
   const token = getStorage('_t')
+  if (!token) {
+    return;
+  }
   // console.log('token', token)
   const opMap = await fetchOpMap()
   websocket.init(token, opMap.data)
