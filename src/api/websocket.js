@@ -1,7 +1,10 @@
+import store from '@/store/index'
+
 import proto from '@/api/proto';
 import { fetchOpMap } from '@/api/api'
-import { getStorage } from '@/utils/storage';
+import { getStorage, removeStorage } from '@/utils/storage';
 import { showToast } from '@/utils/application';
+import { setUserInfo } from '@/store/user'
 
 const { api } = proto
 
@@ -26,7 +29,6 @@ const websocket = {
     this.opPathMap = opPathMap || {};
     this.nameOpMap = nameOpMap || {};
     // window.proto = proto;
-    // websocket test
 
     const ws = new WebSocket("ws://localhost:9999/api/conn/ws")
     this.conn = ws
@@ -39,6 +41,11 @@ const websocket = {
       // const reqBuffer = api.ReqIdentity.encode(req).finish()
       this.send(req, res => {
         this.status = 2;
+        // const dispatch = useDispatch();
+        // window.res = res;
+        // console.log(store, setUserInfo(res))
+        store.dispatch(setUserInfo(res.toJSON()));
+
         console.log('identity success:', res)
 
         // 依次发送等待连接的消息队列
@@ -49,6 +56,7 @@ const websocket = {
           }
         }
       }, err => {
+        removeStorage('_t')
         showToast({title: err})
         console.error('连接认证失败:', err)
       })

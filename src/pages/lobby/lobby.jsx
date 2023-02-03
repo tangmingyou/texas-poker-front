@@ -33,9 +33,9 @@ class Lobby extends Component {
   }
 
   componentDidMount() {
-    setTimeout(() => {
+    // setTimeout(() => {
       this.handleReqLobbyView();
-    }, 1500)
+    // }, 1500)
     // fetchLobbyView()
     //   .then(res => {
     //     console.log('lobby', res)

@@ -14,25 +14,14 @@
     display: flex;
   }
 
-  .player-state-wrap {
-    height: 53px;
-    width: 39px;
-    // background-color: #F1D09F;
+  .p-status-ready {
     position: absolute;
-    left: -40px;
-    top: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    top: -25px;
+    left: 30px;
+    color: #EE914E;
+    font-weight: bold;
+    font-size: 12px;
   }
-
-  .state-left {
-    position: absolute;
-    left: 157px;
-    top: 10px;
-  }
-
   .player-no {
     position: absolute;
     top: -25px;

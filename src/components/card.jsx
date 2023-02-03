@@ -40,7 +40,7 @@ function Card(props) {
               left: Taro.pxTransform(w / 8),
             }}>
               <Text style={{
-                color: suit % 2 === 0?'#FF4A0E':'#000', fontSize: Taro.pxTransform(w / 3)
+                color: suit==='D' || suit==='H'?'#FF4A0E':'#000', fontSize: Taro.pxTransform(w / 3)
               }}>{dots[dot || 0]}</Text>
             </View>
             <View className="suit-wrap">

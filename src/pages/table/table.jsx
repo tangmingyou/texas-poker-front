@@ -3,7 +3,11 @@ import { View, Text, Image, Input, Button } from '@tarojs/components'
 import { connect } from 'react-redux'
 import cnames from 'classnames'
 
-import { reqGameFullStatus, reqKickOutTable } from '@/api/wsapi'
+import {
+  reqGameFullStatus, reqKickOutTable, reqLeaveTable,
+  reqReadyStart, reqDismissGameTable, reqGameStart,
+  reqCancelReady
+} from '@/api/wsapi'
 import { addMsgListen, removeMsgListener } from '@/api/websocket'
 import { ifEmpty } from '@/utils/validator'
 
@@ -20,10 +24,11 @@ import Taro from '@tarojs/taro'
 import { showToast, redirectTo } from '@/utils/application'
 import { isIn } from '@/utils/collect'
 
-function PlayerStatus() {
+function PlayerStatus(props) {
+  const { text, color } = props;
   return (
-    <View>
-      <Text>Ready</Text>
+    <View className="p-status">
+      <Text>{text}</Text>
     </View>
   )
 }
@@ -62,20 +67,24 @@ class Table extends Component {
 
   componentWillUnmount() {
     // 取消监听消息
-    removeMsgListener('api.ResGameFullStatus')
-    removeMsgListener('api.ResKickOutTable')
+    removeMsgListener('api.ResGameFullStatus');
+    removeMsgListener('api.ResKickOutTable');
   }
 
   componentDidMount() {
     // setTimeout(() => {
       // 监听状态变化消息
-      addMsgListen('api.ResGameFullStatus', res => this.handleResGameFullStatus(res));
+      addMsgListen('api.ResGameFullStatus', this.handleResGameFullStatus); // 牌桌状态变化
+      // 被房主踢出
       addMsgListen('api.ResKickOutTable', res => {
-        console.log('listener level table', res);
-        redirectTo({url: '/pages/lobby/lobby', complete() {
-          showToast({title: '您被请出牌桌'})
-        }});
+        showToast({title: '您被请出牌桌'});
+        setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
       });
+      // 牌桌解散
+      addMsgListen('api.ResDismissGameTable', res => {
+        showToast({title: '牌桌已解散'});
+        setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
+      })
 
       // 查询当前牌桌状态
       reqGameFullStatus()
@@ -92,7 +101,6 @@ class Table extends Component {
   }
 
   handleResGameFullStatus = res => {
-    console.log('res game...++', this, res)
     this.setState({
       playerId: res.playerId,
       inGame: !!res.inGame,
@@ -126,11 +134,65 @@ class Table extends Component {
             showToast({title: err})
           })
       }
+    });
+  }
+
+  // 退出
+  handleLeaveTable() {
+    Taro.showModal({
+      title: '提示',
+      content: "是否离开牌桌？",
+      success: res => {
+        if (!res.confirm) {
+          return;
+        }
+        reqLeaveTable()
+          .then(_ => {
+            redirectTo({url: '/pages/lobby/lobby'})
+          })
+          .catch(err => showToast({title: err}))
+      }
     })
   }
 
+  // 准备开始
+  handleReadyStart(playerStatus) {
+    (playerStatus === 1 ? reqReadyStart() : reqCancelReady())
+      .then(res => {
+        console.log('ready res:', res);
+      })
+      .catch(err => showToast({title: err}));
+  }
+
+  // 解散牌桌
+  handleResDismissGameTable() {
+    Taro.showModal({
+      title: '提示',
+      content: "是否解散牌桌？",
+      success: res => {
+        if (!res.confirm) {
+          return;
+        }
+        reqDismissGameTable()
+          .then(_ => {
+            redirectTo({url: '/pages/lobby/lobby'})
+          })
+          .catch(err => showToast({title: err}));
+      }
+    })
+  }
+
+  // 开始游戏
+  handleGameStart() {
+    reqGameStart()
+    .then(res => {
+      console.log('game start...', res)
+    })
+    .catch(err => showToast({title: err}));
+  }
+
   render() {
-    const { username, nickname, avatar } = this.props.user; // useSelector(state => state.user);
+    const { username, nickname, avatar, defaultAvatar } = this.props.user; // useSelector(state => state.user);
     // const players = [1, 2, 3, 4, 5, 6];
     const players = this.state.players.map((player, index) => ({player, index}));
     const {playerId, tableNo, stage, chip, roundTimes} = this.state;
@@ -160,13 +222,10 @@ class Table extends Component {
                 row.map(({index, player}, j) => (
                   <View key={j} className="player-wrap" onClick={(p => {console.log(p)}).bind(this, player)}>
                     {
-                      j % 2 === 0 &&
-                      <View className={cnames('player-state-wrap', {'state-left': j % 2 === 0})}>
-                        <PlayerStatus action={1} />
-                      </View>
+                      player.status === 2 && <View className="p-status-ready"><Text>Ready!</Text></View>
                     }
                     <View className="player-bar">
-                      <View className={cnames("player-no", { "player-no-running": player.index === 0 })}><Text>#{index}</Text></View>
+                      <View className={cnames("player-no", { "player-no-running": player.status > 1})}><Text>#{index}</Text></View>
                       {
                         stage === 1 && selfPlayer.master && player.id
                         ? <View className="kickout" onClick={this.handleKickoutPlayer.bind(this, player)}><Image className="kickout-icon" src={closeIcon} /></View>
@@ -233,14 +292,14 @@ class Table extends Component {
             <View className="hand-five">
               {
                 existsCard(selfPlayer.handCard[0]) && [1, 2, 3, 4, 5].map((_, i) => (
-                  <View key={i} className="hand-five-item"><Card w={28} h={36} dot={12} suit={2} /></View>
+                  <View key={i} className="hand-five-item"><Card w={28} h={36} dot={12} suit={'H'} /></View>
                 ))
               }
             </View>
             <View className='u-opt' style={{ display: 'flex' }}>
               <View>
                 <View className="s-info-wrap">
-                  <View className="s-avatar"><Image className="s-avatar-img" src={selfPlayer.avatar || avatar} /></View>
+                  <View className="s-avatar"><Image className="s-avatar-img" src={selfPlayer.avatar || avatar || defaultAvatar} /></View>
                   <View className="s-username"><Text>{selfPlayer.username}</Text></View>
                 </View>
                 <View className="s-wallet-wrap">
@@ -261,13 +320,13 @@ class Table extends Component {
                   stage === 1 ? (
                     // 是房主: 关闭牌桌, 开始游戏
                     selfPlayer.master ? <View className="ctl-opt-wrap">
-                      <View className="ctl-opt"><Button className={cnames("ctl-opt-btn-4", {'ctl-opt-btn-disable': selfPlayer.status === 2})}>关闭牌桌</Button></View>
-                      <View className="ctl-opt"><Button className={cnames("ctl-opt-btn-6", {'ctl-opt-btn-disable': selfPlayer.status === 2})}>开始游戏</Button></View>
+                      <View className="ctl-opt"><Button onClick={this.handleResDismissGameTable.bind(this)} className={cnames("ctl-opt-btn-4", {'ctl-opt-btn-disable': selfPlayer.status === 2})}>关闭牌桌</Button></View>
+                      <View className="ctl-opt"><Button onClick={this.handleGameStart.bind(this)} className={cnames("ctl-opt-btn-6", {'ctl-opt-btn-disable': selfPlayer.status === 2})}>开始游戏</Button></View>
                     </View>
                     // 是玩家：退出, 准备
                     : <View className="ctl-opt-wrap">
-                      <View className="ctl-opt"><Button style={{display: selfPlayer.status === 2 ? 'none' : 'block'}} className={cnames("ctl-opt-btn-4", {'ctl-opt-btn-disable': selfPlayer.status === 2})}>退出</Button></View>
-                      <View className="ctl-opt"><Button className={cnames("ctl-opt-btn-5", {'ctl-opt-btn-5-ready': selfPlayer.status === 2})}>{selfPlayer.status === 2 ? '已准备' : '准备'}</Button></View>
+                      <View className="ctl-opt"><Button onClick={this.handleLeaveTable.bind(this)} style={{display: selfPlayer.status === 2 ? 'none' : 'block'}} className={cnames("ctl-opt-btn-4", {'ctl-opt-btn-disable': selfPlayer.status === 2})}>退出</Button></View>
+                      <View className="ctl-opt"><Button onClick={this.handleReadyStart.bind(this, selfPlayer.status)} className={cnames("ctl-opt-btn-5", {'ctl-opt-btn-5-ready': selfPlayer.status === 2})}>{selfPlayer.status === 2 ? '已准备' : '准备'}</Button></View>
                     </View>
                   )
                   : <View className="ctl-opt-wrap">
