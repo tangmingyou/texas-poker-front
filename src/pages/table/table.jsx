@@ -20,6 +20,12 @@ import plus1Icon from '@/assets/icon/plus-1.svg'
 import sub1Icon from '@/assets/icon/sub-1.svg'
 import closeIcon from '@/assets/icon/close-1.svg'
 
+import timeIcon from '@/assets/icon/time-fill.svg'
+import crownIcon from '@/assets/icon/crown.svg'
+import crownDarkIcon from '@/assets/icon/crown_dark.svg'
+import bigBlindIcon from '@/assets/icon/big_blind.svg'
+import smallBlindIcon from '@/assets/icon/small_blind.svg'
+
 import Taro from '@tarojs/taro'
 import { showToast, redirectTo } from '@/utils/application'
 import { isIn } from '@/utils/collect'
@@ -59,6 +65,9 @@ class Table extends Component {
       chip: 0,
       roundTimes: 0,
       playerId: 0,
+      masterId: 0,
+      bigBlindPos: -1,
+      smallBlindPos: -1,
 
       players: [],
       publicCard: [],
@@ -84,7 +93,15 @@ class Table extends Component {
       addMsgListen('api.ResDismissGameTable', res => {
         showToast({title: '牌桌已解散'});
         setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
-      })
+      });
+      // 扣除大盲注(显示3秒)
+      addMsgListen('api.ResBigBlindChip', res => {
+        showToast({title: '大盲注:' + res.chip});
+      });
+      // 扣除小盲注(显示3秒)
+      addMsgListen('api.ResSmallBlindChip', res => {
+        showToast({title: '小盲注:' + res.chip});
+      });
 
       // 查询当前牌桌状态
       reqGameFullStatus()
@@ -108,6 +125,9 @@ class Table extends Component {
       stage: res.gameStage,
       chip: res.chip || 0,
       roundTimes: res.roundTimes || 0,
+      masterId: res.masterId,
+      bigBlindPos: res.bigBlindPos,
+      smallBlindPos: res.smallBlindPos,
 
       players: res.players,
       publicCard: res.publicCard,
@@ -195,7 +215,7 @@ class Table extends Component {
     const { username, nickname, avatar, defaultAvatar } = this.props.user; // useSelector(state => state.user);
     // const players = [1, 2, 3, 4, 5, 6];
     const players = this.state.players.map((player, index) => ({player, index}));
-    const {playerId, tableNo, stage, chip, roundTimes} = this.state;
+    const {inGame, playerId, tableNo, stage, bigBlindPos, smallBlindPos, chip, roundTimes} = this.state;
 
     // 从玩家中找到自己 TODO 弄到 state, 避免每次render计算
     // console.log('props', this.props);
@@ -225,20 +245,52 @@ class Table extends Component {
                       player.status === 2 && <View className="p-status-ready"><Text>Ready!</Text></View>
                     }
                     <View className="player-bar">
-                      <View className={cnames("player-no", { "player-no-running": player.status > 1})}><Text>#{index}</Text></View>
                       {
+                        // 座位编号
+                        !player.id ? null :
+                        player.master
+                        ? <View className="player-no-crown">
+                            <Image className="pnc-bg-icon" src={isIn(player.status,2,4,6) ? crownIcon : crownDarkIcon} />
+                            <View className={cnames('', {'pnc-text-running': isIn(player.status,2,4,6)})}><Text>#{index+1}</Text></View>
+                          </View>
+                        : <View className={cnames("player-no", { "player-no-running": isIn(player.status,2,4,6)})}><Text>#{index+1}</Text></View>
+                      }
+                      {
+                        // 大小盲注图标
+                        !player.id ? null : !(inGame && isIn(index, bigBlindPos, smallBlindPos)) ? null
+                        : <View className="blind-icon"><Image src={index === bigBlindPos ? bigBlindIcon : smallBlindIcon} /></View>
+                      }
+                      {
+                        // 等待读秒，下注金额
+                        !inGame ? null : !isIn(player.status,4,6) ? null :
+                        <View className={cnames({"round-wrap-l": j%2===0,"round-wrap-r": j%2===1})}>
+                          {
+                            // TODO All In ...
+                            j%2 === 0
+                            ? <View className="time-wrap">
+                              <Image src={timeIcon} />
+                              <Text>29</Text>
+                            </View>
+                            : <View className={cnames('filling-chip', {'filling-chip-l': player.chip > 99})}><Text>+{player.chip}</Text></View>
+                          }
+                        </View>
+                      }
+                      {
+                        // 踢出牌桌close图标
                         stage === 1 && selfPlayer.master && player.id
                         ? <View className="kickout" onClick={this.handleKickoutPlayer.bind(this, player)}><Image className="kickout-icon" src={closeIcon} /></View>
                         : null
                       }
-                      {existsCard(player.handCard[0]) && <View className="card1"><Card w={38} h={48} dot={cardDot(player.handCard[0], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[0])} /></View>}
-                      {existsCard(player.handCard[1]) && <View className="card2"><Card w={38} h={48} dot={cardDot(player.handCard[0], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[1])} /></View>}
-
+                      {/* 玩家手牌 */}
+                      {existsCard(selfPlayer.handCard[0]) && <View className="card1"><Card w={38} h={48} dot={cardDot(player.handCard[0], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[0])} /></View>}
+                      {existsCard(selfPlayer.handCard[0]) && <View className="card2"><Card w={38} h={48} dot={cardDot(player.handCard[1], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[1])} /></View>}
+                      {/* 头像名称 */}
                       <View className={cnames("player", {'player-wait': !player.id || isIn(player.status, 3, 7)})}>
                         <View className="avatar-wrap">{!player.id ? null : <Image className="avatar" src={player.avatar || avatar} />}</View>
                         <View className="player-name"><Text>{player.username}</Text></View>
                       </View>
                       {
+                        // 玩家筹码
                         !player.id ? null :
                         <View className="wallet-wrap">
                           <View className={cnames("wallet", {'wallet-wait': isIn(player.status, 3, 7)})}>
@@ -286,9 +338,38 @@ class Table extends Component {
 
         <View className="self-box">
           <View className="self-wrap">
-          <View className={cnames("player-no", { "player-no-running": true })}><Text>#{selfIndex}</Text></View>
+            {
+              //
+              selfPlayer.master
+              ? <View className="player-no-crown">
+                  <Image className="pnc-bg-icon" src={isIn(selfPlayer.status,2,4,6) ? crownIcon : crownDarkIcon} />
+                  <View className={cnames('', {'pnc-text-running': isIn(selfPlayer.status,2,4,6)})}><Text>#{selfIndex+1}</Text></View>
+                </View>
+              : <View className={cnames("player-no", { "player-no-running": isIn(selfPlayer.status,2,4,6) })}><Text>#{selfIndex+1}</Text></View>
+            }
+
+            {
+              // 大小盲注图标
+              !(inGame && isIn(selfIndex, bigBlindPos, smallBlindPos)) ? null
+              : <View className="blind-icon blind-icon-self"><Image src={selfIndex === bigBlindPos ? bigBlindIcon : smallBlindIcon} /></View>
+            }
+            {
+              // 等待读秒，下注金额
+              <View className={'round-wrap-l round-wrap-self'}>
+                {
+                  // TODO All In ...
+                  true
+                  ? <View className="time-wrap time-wrap-self">
+                    <Image className="time-icon" src={timeIcon} />
+                    <Text>29</Text>
+                  </View>
+                  : <View className={cnames('filling-chip filling-chip-self')}><Text>+{selfPlayer.chip}</Text></View>
+                  // , {'filling-chip-l': selfPlayer.chip > 99}
+                }
+              </View>
+            }
             {existsCard(selfPlayer.handCard[0]) && <View className="hand-card1"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[0], -1)} suit={cardSuit(selfPlayer.handCard[0])} /></View>}
-            {existsCard(selfPlayer.handCard[1]) && <View className="hand-card2"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[1], -1)} suit={cardSuit(selfPlayer.handCard[0])} /></View>}
+            {existsCard(selfPlayer.handCard[1]) && <View className="hand-card2"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[1], -1)} suit={cardSuit(selfPlayer.handCard[1])} /></View>}
             <View className="hand-five">
               {
                 existsCard(selfPlayer.handCard[0]) && [1, 2, 3, 4, 5].map((_, i) => (
@@ -296,7 +377,7 @@ class Table extends Component {
                 ))
               }
             </View>
-            <View className='u-opt' style={{ display: 'flex' }}>
+            <View className='u-opt'>
               <View>
                 <View className="s-info-wrap">
                   <View className="s-avatar"><Image className="s-avatar-img" src={selfPlayer.avatar || avatar || defaultAvatar} /></View>

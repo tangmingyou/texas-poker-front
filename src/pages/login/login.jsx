@@ -5,7 +5,7 @@ import Taro from '@tarojs/taro';
 //import { Form, Input, TextArea, Cell, Button, Row, Col, Image } from '@nutui/nutui-react-taro';
 import ws from '@/api/websocket'
 import './login.scss'
-import { doLogin, fetchOpMap } from '@/api/api'
+import { doLogin, fetchOpMap, fetchRouteWs } from '@/api/api'
 import { redirectTo, showToast } from '@/utils/application'
 import iconUser from '@/assets/icon/user-3-fill.svg'
 import iconLock from '@/assets/icon/lock-2-fill.svg'
@@ -33,10 +33,10 @@ function Login() {
 
       //const token = "AgOjcdf3goeYDX3lwWWwkXtVpcrL-l2rX8csrRKgs3_-BC3JOx0l6nZU0MV25eIn"
       try {
-        const [tokenRes, opMapRes] = await Promise.all([doLogin(state), fetchOpMap()]);
-        setStorage('_t', tokenRes.data.token)
+        const [tokenRes, opMapRes, wsRes] = await Promise.all([doLogin(state), fetchOpMap(), fetchRouteWs()]);
+        setStorage('_t', tokenRes.data.token);
         // 初始化 websocket 连接
-        ws.init(tokenRes.data.token, opMapRes.data);
+        ws.init(tokenRes.data.token, opMapRes.data, wsRes.data);
         showToast({title: '登录成功', duration: 800});
         // 重定向到大厅
         setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);

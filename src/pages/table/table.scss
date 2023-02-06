@@ -22,25 +22,103 @@
     font-weight: bold;
     font-size: 12px;
   }
-  .player-no {
+  .player-no,.player-no-crown {
     position: absolute;
-    top: -25px;
-    color: #fff;
+    top: -26px;
+    color: #EE914E;
     font-size: 14px;
-    height: 23px;
-    width: 23px;
-    line-height: 23px;
-    background-color: #807878;
+    height: 24px;
+    width: 24px;
+    line-height: 24px;
     border-radius: 50%;
     text-align: center;
+    font-weight: bold;
   }
-
+  .player-no {
+    background-color: #D8D8D8;
+  }
   .player-no-running {
     font-weight: bold;
     color: #fff;
     background-color: #EE914E;
   }
 
+  .player-no-crown {
+    line-height: 28px;
+    color: #EE914E;
+  }
+  .pnc-bg-icon {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    height: 24px;
+    width: auto;
+  }
+  .pnc-text-running {
+    color: #fff;
+  }
+
+  .blind-icon {
+    position: absolute;
+    left: 110px;
+    top: 25px;
+    width: 48px;
+    height: 48px;
+  }
+  .blind-icon-self {
+    left: -2px;
+    top: -2px;
+    z-index: 1;
+  }
+
+  .round-wrap-l,.round-wrap-r {
+    position: absolute;
+    top: 8px;
+    left: 154px;
+    width: 36px;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+  .round-wrap-r {
+    left: -40px;
+  }
+  .round-wrap-self {
+    top: -66px;
+    // left: 21px;
+    left: 0px;
+    z-index: 2;
+  }
+  .time-wrap {
+    color: #1BCE7D;
+    font-weight: bold;
+    text-align: center;
+    line-height: 10px;
+  }
+  .time-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .time-wrap-self {
+    margin-top: -46px;
+    margin-left: -15px;
+    line-height: 14px;
+  }
+  .filling-chip {
+    font-size: 18px;
+    font-weight: bold;
+    color: #EE914E;
+  }
+  .filling-chip-l {
+    margin-left: -10px;
+  }
+  .filling-chip-self {
+    color: #FF4400;
+    margin-top: -10px;
+  }
   .kickout {
     position: absolute;
     z-index: 99;
@@ -76,7 +154,7 @@
     // line-height: 114px;
     display: flex;
     // padding: 10px 4px;
-    border: 1px solid #000;
+    // border: 1px solid #000;
     border-radius: 5px;
   }
 

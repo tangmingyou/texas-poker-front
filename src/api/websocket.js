@@ -1,7 +1,7 @@
 import store from '@/store/index'
 
 import proto from '@/api/proto';
-import { fetchOpMap } from '@/api/api'
+import { fetchOpMap, fetchRouteWs } from '@/api/api'
 import { getStorage, removeStorage } from '@/utils/storage';
 import { showToast } from '@/utils/application';
 import { setUserInfo } from '@/store/user'
@@ -20,7 +20,7 @@ const websocket = {
   // 消息监听列表
   msgListener: {}, // {op: func}
   waitInitCalls: [],
-  init(token, { offset, opFail, opSuccess, opPathMap, nameOpMap }) {
+  init(token, { offset, opFail, opSuccess, opPathMap, nameOpMap }, { wsAddr }) {
 
     // TODO 连接状态判定
     this.offset = offset || 0;
@@ -30,7 +30,7 @@ const websocket = {
     this.nameOpMap = nameOpMap || {};
     // window.proto = proto;
 
-    const ws = new WebSocket("ws://localhost:9999/api/conn/ws")
+    const ws = new WebSocket(`ws://${wsAddr}/api/conn/ws`)
     this.conn = ws
     console.log(this)
     ws.binaryType = 'arraybuffer'
@@ -184,8 +184,8 @@ export const sendPromise = function(msg) {
     return;
   }
   // console.log('token', token)
-  const opMap = await fetchOpMap()
-  websocket.init(token, opMap.data)
+  const [opMap, wsRes] = await Promise.all([fetchOpMap(), fetchRouteWs()]);
+  websocket.init(token, opMap.data, wsRes.data);
 
   window.websocket = websocket;
 })()
