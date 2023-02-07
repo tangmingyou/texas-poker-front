@@ -242,7 +242,7 @@ class Table extends Component {
                 row.map(({index, player}, j) => (
                   <View key={j} className="player-wrap" onClick={(p => {console.log(p)}).bind(this, player)}>
                     {
-                      player.status === 2 && <View className="p-status-ready"><Text>Ready!</Text></View>
+                      player.status === 2 && <View className="p-status-ready"><Text>Ready</Text></View>
                     }
                     <View className="player-bar">
                       {

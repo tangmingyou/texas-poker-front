@@ -33,8 +33,9 @@ function Login() {
 
       //const token = "AgOjcdf3goeYDX3lwWWwkXtVpcrL-l2rX8csrRKgs3_-BC3JOx0l6nZU0MV25eIn"
       try {
-        const [tokenRes, opMapRes, wsRes] = await Promise.all([doLogin(state), fetchOpMap(), fetchRouteWs()]);
+        const [tokenRes, opMapRes] = await Promise.all([doLogin(state), fetchOpMap()]);
         setStorage('_t', tokenRes.data.token);
+        const wsRes = await fetchRouteWs();
         // 初始化 websocket 连接
         ws.init(tokenRes.data.token, opMapRes.data, wsRes.data);
         showToast({title: '登录成功', duration: 800});
