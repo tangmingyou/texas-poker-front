@@ -130,32 +130,32 @@ class Lobby extends Component {
     //   </View>
     // );
 
-    return (
-      <View className='container'>
-        {/* <Head title='Radio' /> */}
-        <View className='page-body'>
-          <View className='page-section'>
-            <Text>默认样式</Text>
-            <Radio value='选中' checked>选中</Radio>
-            <Radio style='margin-left: 20rpx' value='未选中'>未选中</Radio>
-          </View>
-          <View className='page-section'>
-            <Text>推荐展示样式</Text>
-            <View className='radio-list'>
-              <RadioGroup>
-                {this.state.list.map((item, i) => {
-                  return (
-                    <Label className='radio-list__label' for={i} key={i}>
-                      <Radio className='radio-list__radio' value={item.value} checked={item.checked}>{item.text}</Radio>
-                    </Label>
-                  )
-                })}
-              </RadioGroup>
-            </View>
-          </View>
-        </View>
-      </View>
-    );
+    // return (
+    //   <View className='container'>
+    //     {/* <Head title='Radio' /> */}
+    //     <View className='page-body'>
+    //       <View className='page-section'>
+    //         <Text>默认样式</Text>
+    //         <Radio value='选中' checked>选中</Radio>
+    //         <Radio style='margin-left: 20rpx' value='未选中'>未选中</Radio>
+    //       </View>
+    //       <View className='page-section'>
+    //         <Text>推荐展示样式</Text>
+    //         <View className='radio-list'>
+    //           <RadioGroup>
+    //             {this.state.list.map((item, i) => {
+    //               return (
+    //                 <Label className='radio-list__label' for={i} key={i}>
+    //                   <Radio className='radio-list__radio' value={item.value} checked={item.checked}>{item.text}</Radio>
+    //                 </Label>
+    //               )
+    //             })}
+    //           </RadioGroup>
+    //         </View>
+    //       </View>
+    //     </View>
+    //   </View>
+    // );
 
     return (
       <View>

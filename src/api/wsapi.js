@@ -3,6 +3,9 @@ import { api } from './proto'
 
 export const aa = msg => sendPromise(msg)
 
+export const reqCreateTable = ({players, robots, texasType, bigBlind}) =>
+  sendPromise(api.ReqCreateTable.create({players, robots, texasType, bigBlind}));
+
 // 大厅桌面预览
 export const reqLobbyView = () => sendPromise(api.ReqLobbyView.create());
 

@@ -1,4 +1,45 @@
 .nt {
+  .prop-wrap {
+    display: flex;
+    margin-top: 20px;
+  }
+  .prop-k {
+    font-size: 14px;
+    width: 120px;
+    text-align: right;
+    height: 20px;
+    line-height: 20px;
+    color: #3D3D3D;
+    font-weight: bold;
+    padding-right: 10px;
+  }
+  .prop-v {
+    width: 280px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .range-custom-button {
+    width: 30px;
+    height: 22px;
+    font-size: 12px;
+    line-height: 22px;
+    font-weight: bold;
+    color: #3D3D3D;
+    text-align: center;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #1BCE7D;
+  }
+  .amount-in {
+    text-align: left;
+    justify-content: flex-start;
+    line-height: 20px;
+    font-size: 16px;
+    color: #FF4400;
+    font-weight: bold;
+  }
+
   .nt-wrap {
     padding: 0 11px 0 11px;
   }
@@ -8,7 +49,7 @@
     // align-content: space-around;
     flex-flow: row wrap;
     width: 405px;
-    margin: 46px auto 0 auto;
+    margin: 26px auto 0 auto;
   }
   .player-wrap {
     // flex: 0 0 50%;
