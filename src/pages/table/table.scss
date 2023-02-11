@@ -310,12 +310,14 @@
   .chat-panel {}
 
   .self-box {
-    // width: 100%;
+    width: 380px;
     height: 109px;
     background-color: #EE914E;
-    margin: 30px 26px 0 26px;
+    // margin: 30px 26px 0 26px;
+    margin: 30px auto 0 auto;
     border-radius: 5px;
-    ;
+    display: flex;
+    justify-content: center;
   }
 
   .self-wrap {
@@ -329,7 +331,7 @@
 
   .s-avatar {
     align-self: center;
-    margin-left: 6px;
+    // margin-left: 6px;
   }
 
   .s-avatar-img {
@@ -357,7 +359,7 @@
     width: 97px;
     height: 18px;
     background-color: #fff;
-    margin-left: 4px;
+    // margin-left: 4px;
     border-radius: 5px;
     display: flex;
     justify-content: space-between;
@@ -409,7 +411,7 @@
   .hand-five {
     position: absolute;
     left: 188px;
-    top: -10px;
+    top: -24px;
     z-index: 999;
     width: 166px;
     height: 46px;
@@ -431,7 +433,7 @@
     margin-left: 30px;
   }
 
-  .ctl-opt-wrap {
+  .ctl-opt-wrap,.ctl-opt-wrap-cfm {
     display: flex;
     width: 170px;
     justify-content: space-between;
@@ -501,6 +503,16 @@
   .ctl-opt-btn-3 {
     background-color: #FF4400;
     color: #F1D09F;
+  }
+  .ctl-opt-btn-ain {
+    width: 58px;
+  }
+  .ctl-opt-wrap-cfm {
+    justify-content: flex-end;
+  }
+  .ctl-opt-btn-cfm {
+    width: 71px;
+    margin-left: 6px;
   }
 
   .ctl-opt-btn-4,

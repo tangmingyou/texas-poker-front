@@ -370,10 +370,10 @@ class Table extends Component {
             }
             {existsCard(selfPlayer.handCard[0]) && <View className="hand-card1"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[0], -1)} suit={cardSuit(selfPlayer.handCard[0])} /></View>}
             {existsCard(selfPlayer.handCard[1]) && <View className="hand-card2"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[1], -1)} suit={cardSuit(selfPlayer.handCard[1])} /></View>}
-            <View className="hand-five">
+            <View className="hand-five" style={{display:'none'}}>
               {
                 existsCard(selfPlayer.handCard[0]) && [1, 2, 3, 4, 5].map((_, i) => (
-                  <View key={i} className="hand-five-item"><Card w={28} h={36} dot={12} suit={'H'} /></View>
+                  <View key={i} className="hand-five-item"><Card w={28} h={35} dot={12} suit={'H'} /></View>
                 ))
               }
             </View>
@@ -393,7 +393,7 @@ class Table extends Component {
               </View>
               <View className="control">
                 <View className="ctl-opt-wrap">
-                  <View className="amount-input"><Input placeholder='your chip' defaultValue={0} /></View>
+                  <View className="amount-input"><Input disabled placeholder='your chip' value={11} /></View>
                   <View className="amount-sub"><Image className="amount-sub-icon" src={sub1Icon} /></View>
                   <View className="amount-plus"><Image className="amount-plus-icon" src={plus1Icon} /></View>
                 </View>
@@ -410,10 +410,16 @@ class Table extends Component {
                       <View className="ctl-opt"><Button onClick={this.handleReadyStart.bind(this, selfPlayer.status)} className={cnames("ctl-opt-btn-5", {'ctl-opt-btn-5-ready': selfPlayer.status === 2})}>{selfPlayer.status === 2 ? '已准备' : '准备'}</Button></View>
                     </View>
                   )
-                  : <View className="ctl-opt-wrap">
-                    <View className="ctl-opt"><Button className="ctl-opt-btn-1">让牌</Button></View>
-                    <View className="ctl-opt"><Button className="ctl-opt-btn-2">弃牌</Button></View>
-                    <View className="ctl-opt"><Button className="ctl-opt-btn-3">跟注</Button></View>
+                  : <View className="">
+                      <View className="ctl-opt-wrap">
+                        <View className="ctl-opt" style={{opacity: 0}}><Button className="ctl-opt-btn-2">弃牌</Button></View>
+                        <View className="ctl-opt"><Button className="ctl-opt-btn-1">让牌</Button></View>
+                        <View className="ctl-opt"><Button className="ctl-opt-btn-1">跟注</Button></View>
+                      </View>
+                      <View className="ctl-opt-wrap-cfm">
+                        <View className="ctl-opt"><Button className="ctl-opt-btn-3 ctl-opt-btn-ain">ALL-IN</Button></View>
+                        <View className="ctl-opt"><Button className="ctl-opt-btn-3 ctl-opt-btn-cfm">确认下注</Button></View>
+                      </View>
                   </View>
                 }
               </View>

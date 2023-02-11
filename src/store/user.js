@@ -11,7 +11,7 @@ const userSlice = createSlice({
   },
   reducers: {
     setUserInfo: (state, {payload}) => {
-      console.log('setUserInfo', state, payload)
+      // console.log('setUserInfo', state, payload)
       state.id = payload.id;
       state.username = payload.username;
       state.avatar = payload.avatar;

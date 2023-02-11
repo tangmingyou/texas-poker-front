@@ -31,6 +31,9 @@ const websocket = {
     // window.proto = proto;
 
     const ws = new WebSocket(`ws://${wsAddr}/api/conn/ws`)
+    if (this.conn) {
+      this.conn.close();
+    }
     this.conn = ws
     console.log(this)
     ws.binaryType = 'arraybuffer'
