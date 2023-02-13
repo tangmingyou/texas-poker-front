@@ -25,3 +25,5 @@ export const reqCancelReady = () => sendPromise(api.ReqCancelReady.create());
 export const reqDismissGameTable = () => sendPromise(api.ReqDismissGameTable.create());
 // 开始牌局
 export const reqGameStart = () => sendPromise(api.ReqGameStart.create());
+// 玩家下注
+export const reqBetting = (betType, betChip) => sendPromise(api.ReqBetting.create({betType, betChip}));

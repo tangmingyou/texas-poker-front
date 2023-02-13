@@ -6,10 +6,10 @@ import cnames from 'classnames'
 import {
   reqGameFullStatus, reqKickOutTable, reqLeaveTable,
   reqReadyStart, reqDismissGameTable, reqGameStart,
-  reqCancelReady
+  reqCancelReady, reqBetting
 } from '@/api/wsapi'
 import { addMsgListen, removeMsgListener } from '@/api/websocket'
-import { ifEmpty } from '@/utils/validator'
+import { isEmpty } from '@/utils/validator'
 
 import './table.scss'
 import Title from '@/components/title'
@@ -71,6 +71,15 @@ class Table extends Component {
 
       players: [],
       publicCard: [],
+
+      otherPlayers: [],
+      selfIndex: 0,
+      selfPlayer: {handCard: [], betRole: {}},
+
+      betType: 0,
+      bettingChip: 0,
+      betConfirmText: '下注',
+      betSubmitLoading: false,
     }
   }
 
@@ -94,14 +103,14 @@ class Table extends Component {
         showToast({title: '牌桌已解散'});
         setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
       });
-      // 扣除大盲注(显示3秒)
-      addMsgListen('api.ResBigBlindChip', res => {
-        showToast({title: '大盲注:' + res.chip});
-      });
-      // 扣除小盲注(显示3秒)
-      addMsgListen('api.ResSmallBlindChip', res => {
-        showToast({title: '小盲注:' + res.chip});
-      });
+      // // 扣除大盲注(显示3秒)
+      // addMsgListen('api.ResBigBlindChip', res => {
+      //   showToast({title: '大盲注:' + res.chip});
+      // });
+      // // 扣除小盲注(显示3秒)
+      // addMsgListen('api.ResSmallBlindChip', res => {
+      //   showToast({title: '小盲注:' + res.chip});
+      // });
 
       // 查询当前牌桌状态
       reqGameFullStatus()
@@ -118,6 +127,11 @@ class Table extends Component {
   }
 
   handleResGameFullStatus = res => {
+    const players = res.players.map((player, index) => ({player, index}));
+    const otherPlayers = players.filter(({player}) => player.id !== res.playerId);
+    const self = players.find(({player}) => player.id === res.playerId);
+    const {index: selfIndex, player: selfPlayer} = self || {player: {handCard: [], betRole: {}}};
+
     this.setState({
       playerId: res.playerId,
       inGame: !!res.inGame,
@@ -131,6 +145,11 @@ class Table extends Component {
 
       players: res.players,
       publicCard: res.publicCard,
+
+      otherPlayers,
+      selfIndex,
+      selfPlayer,
+      bettingChip: this.state.bettingChip !== 0 ? this.state.bettingChip : selfPlayer.betMin
     })
     // console.log('res game', res, res.publicCard[0].dot, ifEmpty(res.publicCard[0].dot, -3))
     window.publicCard = res.publicCard
@@ -211,18 +230,69 @@ class Table extends Component {
     .catch(err => showToast({title: err}));
   }
 
+  // 加注
+  handleSubPlusBetting(symbol, once) {
+    const c = this.state.bettingChip || 0;
+    const {betRole: {betMax}} = this.state.selfPlayer;
+    if (symbol < 0 && c <= 0) { // 减
+      return;
+    } else if (symbol > 0 && betMax >= 0 && c >= betMax) { // 加
+      return;
+    }
+    const chip = c + symbol * once;
+    this.setState({bettingChip: chip, betType: 2});
+  }
+
+  // 跟注,弃牌...操作按钮
+  handleBetting(betType) {
+    console.log('betType', betType)
+    const {betRole: {betMin}} = this.state.selfPlayer;
+    switch(betType) {
+      case 1: // 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
+        this.setState({betType: 1, bettingChip: betMin, betConfirmText: '跟注'});
+        break;
+      case 4:
+        this.setState({betType: 4, betConfirmText: '弃牌'});
+        break;
+    }
+
+  }
+
+  handleBetConfirm() {
+    const {betType, bettingChip} = this.state;
+    if (betType === 0) {
+      return showToast({title: '请增加下注筹码或其他操作'});
+    }
+
+    console.log('confirm', betType, bettingChip)
+
+    this.setState({betSubmitLoading: true}, () => {
+      reqBetting(betType, bettingChip || 0)
+        .then(res => {
+          console.log('betRes', res);
+        })
+        .catch(err => {
+          showToast({title: err})
+        })
+        .finally(() => {
+          this.setState({betSubmitLoading: false, betConfirmText: '下注'})
+        })
+    })
+  }
+
   render() {
     const { username, nickname, avatar, defaultAvatar } = this.props.user; // useSelector(state => state.user);
     // const players = [1, 2, 3, 4, 5, 6];
     const players = this.state.players.map((player, index) => ({player, index}));
-    const {inGame, playerId, tableNo, stage, bigBlindPos, smallBlindPos, chip, roundTimes} = this.state;
-
-    // 从玩家中找到自己 TODO 弄到 state, 避免每次render计算
+    const {
+      inGame, playerId, tableNo,
+      stage, bigBlindPos, smallBlindPos,
+      chip, roundTimes, otherPlayers,
+      selfIndex, selfPlayer,
+      bettingChip, betConfirmText, betSubmitLoading
+    } = this.state;
+    const {betMin, betMax, betOpts} = selfPlayer.betRole;
     // console.log('props', this.props);
-    const otherPlayers = players.filter(({player}) => player.id !== playerId);
-    const self = players.find(({player}) => player.id === playerId);
-    const {index: selfIndex , player: selfPlayer} = self || {player: {handCard: []}};
-    // console.log(otherPlayers, self)
 
     const playerRows = otherPlayers.reduce((arr, player, idx) => {
       const row = parseInt(idx / 2);
@@ -312,7 +382,7 @@ class Table extends Component {
             <View className="desktop-cards">
               {
                 this.state.publicCard.map((card, i) => (
-                  <Card key={i} w={38} h={48} dot={cardDot(card, -3)} suit={cardSuit(card)} />
+                  <Card key={i} w={38} h={48} dot={stage<=1?-3 : cardDot(card, -3)} suit={cardSuit(card)} />
                 ))
               }
             </View>
@@ -393,9 +463,15 @@ class Table extends Component {
               </View>
               <View className="control">
                 <View className="ctl-opt-wrap">
-                  <View className="amount-input"><Input disabled placeholder='your chip' value={11} /></View>
-                  <View className="amount-sub"><Image className="amount-sub-icon" src={sub1Icon} /></View>
-                  <View className="amount-plus"><Image className="amount-plus-icon" src={plus1Icon} /></View>
+                  {isEmpty(betOpts) ? null : <View className="amount-input"><Input
+                    className="amount-input-in"
+                    type="numberpad"
+                    placeholder='betting chip'
+                    value={bettingChip}
+                    onInput={e => this.setState({bettingChip: e.target.value})}
+                  /></View>}
+                  {!isIn(2, betOpts) ? null : <View className="amount-sub" onClick={this.handleSubPlusBetting.bind(this, -1, 1)}><Image className="amount-sub-icon" src={sub1Icon} /></View>}
+                  {!isIn(2, betOpts) ? null : <View className="amount-plus" onClick={this.handleSubPlusBetting.bind(this, 1, 1)}><Image className="amount-plus-icon" src={plus1Icon} /></View>}
                 </View>
                 {
                   stage === 1 ? (
@@ -412,13 +488,27 @@ class Table extends Component {
                   )
                   : <View className="">
                       <View className="ctl-opt-wrap">
-                        <View className="ctl-opt" style={{opacity: 0}}><Button className="ctl-opt-btn-2">弃牌</Button></View>
-                        <View className="ctl-opt"><Button className="ctl-opt-btn-1">让牌</Button></View>
-                        <View className="ctl-opt"><Button className="ctl-opt-btn-1">跟注</Button></View>
+                        <View className="ctl-opt">{
+                          !isIn(4, betOpts) ? <Button className="ctl-opt-btn-2 ctl-opacity0">弃牌</Button>
+                          : <Button onClick={this.handleBetting.bind(this, 4)} className="ctl-opt-btn-2">弃牌</Button>
+                        }</View>
+                        <View className="ctl-opt" style={{opacity: 0}}>{
+                          !isIn(5, betOpts)? <Button className="ctl-opt-btn-1 ctl-opacity0">过牌</Button>
+                          : <Button onClick={this.handleBetting.bind(this, 5)} className="ctl-opt-btn-1">过牌</Button>
+                        }</View>
+                        <View className="ctl-opt">{
+                          !isIn(1, betOpts)? <Button className="ctl-opt-btn-1 ctl-opacity0">跟注</Button>
+                          : <Button onClick={this.handleBetting.bind(this, 1)} className="ctl-opt-btn-1">跟注</Button>
+                        }</View>
                       </View>
                       <View className="ctl-opt-wrap-cfm">
-                        <View className="ctl-opt"><Button className="ctl-opt-btn-3 ctl-opt-btn-ain">ALL-IN</Button></View>
-                        <View className="ctl-opt"><Button className="ctl-opt-btn-3 ctl-opt-btn-cfm">确认下注</Button></View>
+                        <View className="ctl-opt">{
+                          !isIn(3, betOpts)? <Button className="ctl-opt-btn-3 ctl-opt-btn-ain ctl-opacity0">ALL-IN</Button>
+                          : <Button onClick={this.handleBetting.bind(this, 3)} className="ctl-opt-btn-3 ctl-opt-btn-ain">ALL-IN</Button>
+                        }</View>
+                        <View className="ctl-opt">
+                          {isEmpty(betOpts) ? null : <Button loading={betSubmitLoading} onClick={this.handleBetConfirm.bind(this)} className="ctl-opt-btn-3 ctl-opt-btn-cfm">确认{betConfirmText}</Button>}
+                        </View>
                       </View>
                   </View>
                 }

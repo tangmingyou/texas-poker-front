@@ -431,6 +431,7 @@
   .control {
     align-self: flex-end;
     margin-left: 30px;
+    margin-bottom: 1px;
   }
 
   .ctl-opt-wrap,.ctl-opt-wrap-cfm {
@@ -447,9 +448,12 @@
     text-align: center;
     background-color: #F1D09F;
     border-radius: 8px;
-    font-size: 12px;
-    padding: 4px 0;
-    color: 3D3D3D;
+    padding: 2px 0;
+  }
+  .amount-input-in {
+    font-size: 14px;
+    line-height: 28px;
+    color: #3D3D3D;
   }
 
   .amount-sub,
@@ -472,8 +476,10 @@
     height: 13px;
   }
 
+  .ctl-opacity0 {
+    opacity: 0;
+  }
   .ctl-opt {}
-
   .ctl-opt-btn-1,
   .ctl-opt-btn-2,
   .ctl-opt-btn-3,
