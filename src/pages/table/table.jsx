@@ -63,7 +63,6 @@ class Table extends Component {
       tableNo: 0,
       stage: 0, // 游戏阶段: 1等待玩家准备;2下大盲注;3下小盲注;4发公共牌;5发第四张公共牌,轮流下注;6发第五张公共牌,轮流下注,7比牌结算
       chip: 0,
-      roundTimes: 0,
       playerId: 0,
       masterId: 0,
       bigBlindPos: -1,
@@ -138,7 +137,6 @@ class Table extends Component {
       tableNo: res.tableNo,
       stage: res.gameStage,
       chip: res.chip || 0,
-      roundTimes: res.roundTimes || 0,
       masterId: res.masterId,
       bigBlindPos: res.bigBlindPos,
       smallBlindPos: res.smallBlindPos,
@@ -287,7 +285,7 @@ class Table extends Component {
     const {
       inGame, playerId, tableNo,
       stage, bigBlindPos, smallBlindPos,
-      chip, roundTimes, otherPlayers,
+      chip, otherPlayers,
       selfIndex, selfPlayer,
       bettingChip, betConfirmText, betSubmitLoading
     } = this.state;
@@ -332,17 +330,17 @@ class Table extends Component {
                       }
                       {
                         // 等待读秒，下注金额
-                        !inGame ? null : !isIn(player.status,4,6) ? null :
+                        !inGame || !isIn(player.status,4,6) ? null :
                         <View className={cnames({"round-wrap-l": j%2===0,"round-wrap-r": j%2===1})}>
-                          {
-                            // TODO All In ...
-                            j%2 === 0
-                            ? <View className="time-wrap">
-                              <Image src={timeIcon} />
-                              <Text>29</Text>
-                            </View>
+                          <View className="time-wrap">
+                            <Image src={timeIcon} />
+                            <Text>29</Text>
+                          </View>
+                          {/* {
+                            isIn(player.status, 4, 6)
+                            ?
                             : <View className={cnames('filling-chip', {'filling-chip-l': player.chip > 99})}><Text>+{player.chip}</Text></View>
-                          }
+                          } */}
                         </View>
                       }
                       {
@@ -352,8 +350,8 @@ class Table extends Component {
                         : null
                       }
                       {/* 玩家手牌 */}
-                      {existsCard(selfPlayer.handCard[0]) && <View className="card1"><Card w={38} h={48} dot={cardDot(player.handCard[0], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[0])} /></View>}
-                      {existsCard(selfPlayer.handCard[0]) && <View className="card2"><Card w={38} h={48} dot={cardDot(player.handCard[1], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[1])} /></View>}
+                      {player.id && existsCard(selfPlayer.handCard[0]) ? <View className={cnames("card1", {'translate-2l':j%2===0,'translate-2r':j%2===1})}><Card w={38} h={48} dot={cardDot(player.handCard[0], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[0])} /></View>: null}
+                      {player.id && existsCard(selfPlayer.handCard[0]) ? <View className={cnames("card2", {'translate-2l':j%2===0,'translate-2r':j%2===1})}><Card w={38} h={48} dot={cardDot(player.handCard[1], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[1])} /></View> : null}
                       {/* 头像名称 */}
                       <View className={cnames("player", {'player-wait': !player.id || isIn(player.status, 3, 7)})}>
                         <View className="avatar-wrap">{!player.id ? null : <Image className="avatar" src={player.avatar || avatar} />}</View>
@@ -381,8 +379,8 @@ class Table extends Component {
           <View className="desktop-wrap">
             <View className="desktop-cards">
               {
-                this.state.publicCard.map((card, i) => (
-                  <Card key={i} w={38} h={48} dot={stage<=1?-3 : cardDot(card, -3)} suit={cardSuit(card)} />
+                !inGame ? null : this.state.publicCard.map((card, i) => (
+                  <Card flipIn={-3} key={i} w={38} h={48} dot={isIn(stage,1,2)?-3 : cardDot(card, -3)} suit={cardSuit(card)} />
                 ))
               }
             </View>
@@ -428,18 +426,19 @@ class Table extends Component {
               <View className={'round-wrap-l round-wrap-self'}>
                 {
                   // TODO All In ...
-                  true
-                  ? <View className="time-wrap time-wrap-self">
+                  !isIn(selfPlayer.status, 4, 6)
+                  ? null
+                  : <View className="time-wrap time-wrap-self">
                     <Image className="time-icon" src={timeIcon} />
                     <Text>29</Text>
                   </View>
-                  : <View className={cnames('filling-chip filling-chip-self')}><Text>+{selfPlayer.chip}</Text></View>
+                  // : <View className={cnames('filling-chip filling-chip-self')}><Text>+{selfPlayer.chip}</Text></View>
                   // , {'filling-chip-l': selfPlayer.chip > 99}
                 }
               </View>
             }
-            {existsCard(selfPlayer.handCard[0]) && <View className="hand-card1"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[0], -1)} suit={cardSuit(selfPlayer.handCard[0])} /></View>}
-            {existsCard(selfPlayer.handCard[1]) && <View className="hand-card2"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[1], -1)} suit={cardSuit(selfPlayer.handCard[1])} /></View>}
+            {existsCard(selfPlayer.handCard[0]) && <View className="hand-card1 translate-2b"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[0], -1)} suit={cardSuit(selfPlayer.handCard[0])} /></View>}
+            {existsCard(selfPlayer.handCard[1]) && <View className="hand-card2 translate-2b"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[1], -1)} suit={cardSuit(selfPlayer.handCard[1])} /></View>}
             <View className="hand-five" style={{display:'none'}}>
               {
                 existsCard(selfPlayer.handCard[0]) && [1, 2, 3, 4, 5].map((_, i) => (

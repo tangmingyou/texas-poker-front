@@ -1,3 +1,38 @@
+@keyframes translate2Left {
+  from {
+    transform: rotate(-20deg) translateX(50%) translateY(200%);
+  }
+  to {
+    transform: rotate(0deg) translateX(0%) translateY(0%);
+  }
+}
+@keyframes translate2Right {
+  from {
+    transform: rotate(20deg) translateX(-50%) translateY(200%);
+  }
+  to {
+    transform: rotate(0deg) translateX(0%) translateY(0%);
+  }
+}
+@keyframes translate2Bottom {
+  from {
+    transform: rotate(20deg) translateX(150%) translateY(-200%);
+  }
+  to {
+    transform: rotate(0deg) translateX(0%) translateY(0%);
+  }
+}
+.translate-2l {
+  animation: translate2Left 1000ms;
+}
+.translate-2r {
+  animation: translate2Right 1000ms;
+}
+
+.translate-2b {
+  animation: translate2Bottom 1000ms;
+}
+
 .tab {
   .playerRow {
     display: flex;

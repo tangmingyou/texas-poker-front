@@ -1,3 +1,16 @@
+@keyframes flip180 {
+  from {
+    transform: rotateY(90deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.flip180 {
+  animation: flip180 1000ms;
+}
+
 .card {
   border-radius: 5px;
   position: relative;

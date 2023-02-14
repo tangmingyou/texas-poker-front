@@ -26,32 +26,34 @@ const suits = {
 const dots = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
 function Card(props) {
-  const {w, h, dot, suit} = props;
+  const {w, h, dot, suit, flipIn} = props;
   // dot == -1 牌背面 dot == -2 弃牌背面
   const width = Taro.pxTransform(w || 42);
   const height = Taro.pxTransform(h || 58);
   return (
-    <View className={cnames("card", {'card-border': dot >= 0})} style={{width, height}}>
-      {
-        dot < 0 ? <Image style={{width, height}} src={dot === -1 ? cardBack1 : dot === -2 ? cardBack2 : cardBack3} /> : (
-          <View>
-            <View className="dot" style={{
-              lineHeight: Taro.pxTransform(w / 3),
-              left: Taro.pxTransform(w / 8),
-            }}>
-              <Text style={{
-                color: suit==='D' || suit==='H'?'#FF4A0E':'#000', fontSize: Taro.pxTransform(w / 3)
-              }}>{dots[dot || 0]}</Text>
-            </View>
-            <View className="suit-wrap">
-              <Image className="suit" src={suits[suit || 0]} style={{
-                height: Taro.pxTransform((w || 42) / 2.3333)
-              }}/>
-            </View>
+    dot < 0 ? (
+      <View className={cnames("card", {'card-border': dot >= 0})} style={{width, height}}>
+        <Image style={{width, height}} src={dot === -1 ? cardBack1 : dot === -2 ? cardBack2 : cardBack3} />
+      </View>
+    ) : (
+      <View className={cnames("card", {'card-border': dot >= 0, 'flip180': flipIn})} style={{width, height}}>
+        <View className="card-x">
+          <View className="dot" style={{
+            lineHeight: Taro.pxTransform(w / 3),
+            left: Taro.pxTransform(w / 8),
+          }}>
+            <Text style={{
+              color: suit==='D' || suit==='H'?'#FF4A0E':'#000', fontSize: Taro.pxTransform(w / 3)
+            }}>{dots[dot || 0]}</Text>
           </View>
-        )
-      }
-    </View>
+          <View className="suit-wrap">
+            <Image className="suit" src={suits[suit || 0]} style={{
+              height: Taro.pxTransform((w || 42) / 2.3333)
+            }}/>
+          </View>
+        </View>
+      </View>
+    )
   )
 }
 
