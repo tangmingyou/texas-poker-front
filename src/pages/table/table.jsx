@@ -289,7 +289,7 @@ class Table extends Component {
       selfIndex, selfPlayer,
       bettingChip, betConfirmText, betSubmitLoading
     } = this.state;
-    const {betMin, betMax, betOpts} = selfPlayer.betRole;
+    const {betMin, betMax, betOpts} = selfPlayer.betRole || {};
     // console.log('props', this.props);
 
     const playerRows = otherPlayers.reduce((arr, player, idx) => {
@@ -353,7 +353,7 @@ class Table extends Component {
                       {player.id && existsCard(selfPlayer.handCard[0]) ? <View className={cnames("card1", {'translate-2l':j%2===0,'translate-2r':j%2===1})}><Card w={38} h={48} dot={cardDot(player.handCard[0], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[0])} /></View>: null}
                       {player.id && existsCard(selfPlayer.handCard[0]) ? <View className={cnames("card2", {'translate-2l':j%2===0,'translate-2r':j%2===1})}><Card w={38} h={48} dot={cardDot(player.handCard[1], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[1])} /></View> : null}
                       {/* 头像名称 */}
-                      <View className={cnames("player", {'player-wait': !player.id || isIn(player.status, 3, 7)})}>
+                      <View className={cnames("player", {'player-wait': !player.id || isIn(player.status, 3, 7) || (player.status === 1 && !player.master)})}>
                         <View className="avatar-wrap">{!player.id ? null : <Image className="avatar" src={player.avatar || avatar} />}</View>
                         <View className="player-name"><Text>{player.username}</Text></View>
                       </View>
