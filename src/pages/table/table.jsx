@@ -79,6 +79,11 @@ class Table extends Component {
       bettingChip: 0,
       betConfirmText: '下注',
       betSubmitLoading: false,
+
+      // winsChip: {}, // {1:14, 2:-14}
+      playerNoticeLines: [], // {line1: "+6",line2: "跟注",playerId: 1}
+      playerNotice: null, //{line1: "+108",line2: "加注:12221126",line3: '跟注:6', playerId: 3},
+      winsChip: {1: -20, 2: 40, 3: -20},
     }
   }
 
@@ -86,6 +91,27 @@ class Table extends Component {
     // 取消监听消息
     removeMsgListener('api.ResGameFullStatus');
     removeMsgListener('api.ResKickOutTable');
+    removeMsgListener('api.ResDismissGameTable');
+    removeMsgListener('api.ResNoticePlayerLine');
+    removeMsgListener('api.ResCalcWinnerChip');
+  }
+
+  showPlayerNotice() {
+    if (this.state.playerNotice) {
+      return;
+    }
+    const playerNotice = this.state.playerNoticeLines.shift();
+    if (!playerNotice) {
+      return;
+    }
+    this.setState({playerNotice}, () => {
+      // 隔1秒展示下一条
+      setTimeout(() => {
+        this.setState({
+          playerNotice: null
+        }, this.showPlayerNotice.bind(this));
+      }, 1500);
+    });
   }
 
   componentDidMount() {
@@ -101,6 +127,21 @@ class Table extends Component {
       addMsgListen('api.ResDismissGameTable', res => {
         showToast({title: '牌桌已解散'});
         setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
+      });
+      // 操作通知消息  {line1: "+6",line2: "跟注",playerId: 1}
+      addMsgListen('api.ResNoticePlayerLine', res => {
+        // 放置消息到通知队列
+        this.state.playerNoticeLines.push(res);
+        this.showPlayerNotice.call(this);
+      });
+      // 输赢筹码信息
+      addMsgListen('api.ResCalcWinnerChip', res => {
+        console.log('winsChip...:', res);
+        window.winsChip = res;
+        this.setState({winsChip: res.winsChip});
+        setTimeout(() => { // 输赢筹码展示一会后消失
+          this.setState({winsChip: {}});
+        }, 1300);
       });
       // // 扣除大盲注(显示3秒)
       // addMsgListen('api.ResBigBlindChip', res => {
@@ -194,7 +235,7 @@ class Table extends Component {
 
   // 准备开始
   handleReadyStart(playerStatus) {
-    (playerStatus === 1 ? reqReadyStart() : reqCancelReady())
+    (playerStatus === 2 ? reqCancelReady() : reqReadyStart())
       .then(res => {
         console.log('ready res:', res);
       })
@@ -243,7 +284,7 @@ class Table extends Component {
 
   // 跟注,弃牌...操作按钮
   handleBetting(betType) {
-    console.log('betType', betType)
+    // console.log('betType', betType) betOpts
     const {betRole: {betMin}} = this.state.selfPlayer;
     switch(betType) {
       case 1: // 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
@@ -253,7 +294,6 @@ class Table extends Component {
         this.setState({betType: 4, betConfirmText: '弃牌'});
         break;
     }
-
   }
 
   handleBetConfirm() {
@@ -287,7 +327,8 @@ class Table extends Component {
       stage, bigBlindPos, smallBlindPos,
       chip, otherPlayers,
       selfIndex, selfPlayer,
-      bettingChip, betConfirmText, betSubmitLoading
+      bettingChip, betConfirmText, betSubmitLoading,
+      playerNotice: pn, winsChip,
     } = this.state;
     const {betMin, betMax, betOpts} = selfPlayer.betRole || {};
     // console.log('props', this.props);
@@ -302,7 +343,9 @@ class Table extends Component {
 
     return (
       <View className="tab">
-        <Title title={`GAME #${tableNo}`} />
+        <Title title={''} leftSolt={(
+          <View className="table-no"><Text>#{tableNo}</Text></View>
+        )} />
         {
           playerRows.map((row, i) => (
             <View key={i} className="playerRow">
@@ -344,6 +387,19 @@ class Table extends Component {
                         </View>
                       }
                       {
+                        !pn || pn.playerId !== player.id ? null : <View className={cnames({"notice-wrap-l": j%2===0,"notice-wrap-r": j%2===1})}>
+                          {pn.line1 && <View className="line1"><Text>{pn.line1}</Text></View>}
+                          {pn.line2 && <View className="line2"><Text>{pn.line2}</Text></View>}
+                          {pn.line3 && <View className="line3"><Text>{pn.line3}</Text></View>}
+                        </View>
+                      }
+                      {
+                        typeof(winsChip[player.id]) !== 'number' ? null
+                        : <View className="wins-chip-wrap">
+                          <View className={cnames("wins-chip", {'lose': winsChip[player.id] < 0, 'win': winsChip[player.id] >= 0})}><Text>{winsChip[player.id] >= 0 ? '+' : ''}{winsChip[player.id]}</Text></View>
+                        </View>
+                      }
+                      {
                         // 踢出牌桌close图标
                         stage === 1 && selfPlayer.master && player.id
                         ? <View className="kickout" onClick={this.handleKickoutPlayer.bind(this, player)}><Image className="kickout-icon" src={closeIcon} /></View>
@@ -351,7 +407,13 @@ class Table extends Component {
                       }
                       {/* 玩家手牌 */}
                       {player.id && existsCard(selfPlayer.handCard[0]) ? <View className={cnames("card1", {'translate-2l':j%2===0,'translate-2r':j%2===1})}><Card w={38} h={48} dot={cardDot(player.handCard[0], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[0])} /></View>: null}
-                      {player.id && existsCard(selfPlayer.handCard[0]) ? <View className={cnames("card2", {'translate-2l':j%2===0,'translate-2r':j%2===1})}><Card w={38} h={48} dot={cardDot(player.handCard[1], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[1])} /></View> : null}
+                      {player.id && existsCard(selfPlayer.handCard[1]) ? <View className={cnames("card2", {'translate-2l':j%2===0,'translate-2r':j%2===1})}><Card w={38} h={48} dot={cardDot(player.handCard[1], player.status === 7 ? -2 : -1)} suit={cardSuit(player.handCard[1])} /></View> : null}
+                      {/* 手牌牌型 */}
+                      {
+                        !(player.handType && player.handType.handZh) ? null : <View className="hand-type">
+                          <Text>{player.handType.handZh}</Text>
+                        </View>
+                      }
                       {/* 头像名称 */}
                       <View className={cnames("player", {'player-wait': !player.id || isIn(player.status, 3, 7) || (player.status === 1 && !player.master)})}>
                         <View className="avatar-wrap">{!player.id ? null : <Image className="avatar" src={player.avatar || avatar} />}</View>
@@ -439,6 +501,29 @@ class Table extends Component {
             }
             {existsCard(selfPlayer.handCard[0]) && <View className="hand-card1 translate-2b"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[0], -1)} suit={cardSuit(selfPlayer.handCard[0])} /></View>}
             {existsCard(selfPlayer.handCard[1]) && <View className="hand-card2 translate-2b"><Card w={38} h={48} dot={cardDot(selfPlayer.handCard[1], -1)} suit={cardSuit(selfPlayer.handCard[1])} /></View>}
+            {/* 手牌牌型 */}
+            {
+              !(selfPlayer.handType && selfPlayer.handType.handZh) ? null : <View className="self-hand-type">
+                <Text>{selfPlayer.handType.handZh}</Text>
+              </View>
+            }
+
+            {
+              !pn || pn.playerId !== selfPlayer.id ? null : <View className="notice-wrap-l notice-wrap-self">
+                {pn.line1 && <View className="line1"><Text>{pn.line1}</Text></View>}
+                {pn.line2 && <View className="line2"><Text>{pn.line2}</Text></View>}
+                {pn.line3 && <View className="line3"><Text>{pn.line3}</Text></View>}
+              </View>
+            }
+
+            {
+              typeof(winsChip[selfPlayer.id]) !== 'number' ? null
+              : <View className="wins-chip-wrap wins-chip-wrap-self">
+                <View className={cnames("wins-chip", {'lose': winsChip[selfPlayer.id] < 0, 'win': winsChip[selfPlayer.id] >= 0})}>
+                  <Text>{winsChip[selfPlayer.id] >= 0 ? '+' : ''}{winsChip[selfPlayer.id]}</Text>
+                </View>
+              </View>
+            }
             <View className="hand-five" style={{display:'none'}}>
               {
                 existsCard(selfPlayer.handCard[0]) && [1, 2, 3, 4, 5].map((_, i) => (
@@ -473,7 +558,7 @@ class Table extends Component {
                   {!isIn(2, betOpts) ? null : <View className="amount-plus" onClick={this.handleSubPlusBetting.bind(this, 1, 1)}><Image className="amount-plus-icon" src={plus1Icon} /></View>}
                 </View>
                 {
-                  stage === 1 ? (
+                  isIn(stage, 1, 7) ? (
                     // 是房主: 关闭牌桌, 开始游戏
                     selfPlayer.master ? <View className="ctl-opt-wrap">
                       <View className="ctl-opt"><Button onClick={this.handleResDismissGameTable.bind(this)} className={cnames("ctl-opt-btn-4", {'ctl-opt-btn-disable': selfPlayer.status === 2})}>关闭牌桌</Button></View>

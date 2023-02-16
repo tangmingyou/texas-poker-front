@@ -3,7 +3,7 @@ import store from '@/store/index'
 import proto from '@/api/proto';
 import { fetchOpMap, fetchRouteWs } from '@/api/api'
 import { getStorage, removeStorage } from '@/utils/storage';
-import { showToast } from '@/utils/application';
+import { redirectTo, showToast } from '@/utils/application';
 import { setUserInfo } from '@/store/user'
 
 const { api } = proto
@@ -83,6 +83,9 @@ const websocket = {
         // console.log(waitCall, this.waitCall);
         if (caller) {
           if (wrap.op === opFail) {
+            if (res.code === 401) { // 重新登录
+              setTimeout(() => redirectTo({url: '/pages/login/login'}), 500);
+            }
             caller.onFail(res, wrap);
           } else {
             caller.onRes(res, wrap);
@@ -180,16 +183,16 @@ export const sendPromise = function(msg) {
   })
 }
 
-;(async function() {
-  // const token = "15PohpTztq4YkMmErI4H71kJWX2pPqnvOZar9HKOfg1KEy0fd8fUNxnBIwuMDcKQEBPG7b9UC7ja_8FtwvYjnA=="
-  const token = getStorage('_t')
-  if (!token) {
-    return;
-  }
-  // console.log('token', token)
-  const [opMap, wsRes] = await Promise.all([fetchOpMap(), fetchRouteWs()]);
-  websocket.init(token, opMap.data, wsRes.data);
+// ;(async function() {
+//   // const token = "15PohpTztq4YkMmErI4H71kJWX2pPqnvOZar9HKOfg1KEy0fd8fUNxnBIwuMDcKQEBPG7b9UC7ja_8FtwvYjnA=="
+//   const token = getStorage('_t')
+//   if (!token) {
+//     return;
+//   }
+//   // console.log('token', token)
+//   const [opMap, wsRes] = await Promise.all([fetchOpMap(), fetchRouteWs()]);
+//   websocket.init(token, opMap.data, wsRes.data);
 
-  window.websocket = websocket;
-})()
+//   window.websocket = websocket;
+// })()
 

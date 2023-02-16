@@ -5,6 +5,10 @@ import { Provider } from 'react-redux'
 import store from './store'
 
 import './app.scss'
+import  { getInstance, redirectTo } from '@/utils/application'
+import { getStorage, removeStorage } from '@/utils/storage'
+import websocket from '@/api/websocket'
+import {fetchOpMap, fetchRouteWs} from '@/api/api'
 
 // IOS Promise finally 兼容
 const promiseFinally = require('promise.prototype.finally');
@@ -65,9 +69,34 @@ window.srt = new SDK({
 // window.srt.setUser({user_id: 'xxx'}) // 设置用户信息，用户信息将会被设置在props.wx_user对象中
 
 class App extends Component {
-  componentDidMount() { }
+  componentDidMount() {
+  }
 
-  componentDidShow() { }
+  componentDidShow() {
+    console.log('instance', getInstance(), 'app mount')
+
+    if (!getInstance().router.path.startsWith('/pages/login/login')) {
+      // 非登录页，检查token是否存在
+      const token = getStorage('_t');
+      if (!token) {
+        setTimeout(() => redirectTo({url: '/pages/login/login'}), 500)
+      } else {
+        // 尝试连接 websocket
+        // const [opMap, wsRes] = await ;
+        Promise.all([fetchOpMap(), fetchRouteWs()])
+          .then(([opMap, wsRes]) => {
+            console.log('token', token, opMap, wsRes)
+            websocket.init(token, opMap.data, wsRes.data);
+            window.websocket = websocket;
+          })
+          .catch(err => {
+            console.log('ws conn error:', err)
+            removeStorage('_t')
+            setTimeout(() => redirectTo({url: '/pages/login/login'}), 500)
+          })
+      }
+    }
+  }
 
   componentDidHide() { }
 

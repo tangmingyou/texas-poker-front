@@ -22,6 +22,40 @@
     transform: rotate(0deg) translateX(0%) translateY(0%);
   }
 }
+
+@keyframes move2Left {
+  from {
+    transform: translateX(-30%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+@keyframes move2Right {
+  from {
+    transform: translateX(30%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+@keyframes move2Bottom {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+@keyframes move2Top {
+  from {
+    transform: translateY(50%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
 .translate-2l {
   animation: translate2Left 1000ms;
 }
@@ -34,6 +68,16 @@
 }
 
 .tab {
+  .table-no {
+    width: 86px;
+    height: 24px;
+    border-radius: 16px;
+    background-color: #EA8C28;
+    text-align: center;
+    line-height: 24px;
+    color: #fff;
+    font-size: 16px;
+  }
   .playerRow {
     display: flex;
     justify-content: space-between;
@@ -51,8 +95,9 @@
 
   .p-status-ready {
     position: absolute;
+    // z-index: 99;
     top: -25px;
-    left: 30px;
+    left: 25px;
     color: #1BCE7D;
     font-weight: bold;
     font-size: 12px;
@@ -142,6 +187,107 @@
     margin-left: -15px;
     line-height: 14px;
   }
+
+  .notice-wrap-l,.notice-wrap-r {
+    position: absolute;
+    top: 0px;
+    left: 156px;
+    width: 68px;
+    height: 82px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    z-index: 99;
+    // align-items: center;
+    // background-color: rgba($color: #fff, $alpha: 0.8);
+    animation: move2Left 1000ms;
+  }
+  .notice-wrap-r {
+    left: -49px;
+    animation: move2Right 1000ms;
+    // text-align: right;
+  }
+  .notice-wrap-self {
+    left: 180px;
+    top: -4px;
+    width: 120px;
+
+    .line1 {
+      color: #FAFAFA;
+    }
+  }
+
+  .line2,.line3 { // .line1,
+    white-space: nowrap;
+    word-break: keep-all; // 中文不换行, https://www.cnblogs.com/wqsbk/p/3493948.html
+    // overflow: hidden;
+    // text-overflow: ellipsis;
+    line-height: 14px;
+    height: 14px;
+  }
+  .line1 {
+    white-space: nowrap;
+    word-break: keep-all;
+    font-size: 18px;
+    font-weight: bold;
+    color: #EE914E;
+  }
+  .line2 {
+    font-size: 14px;
+    font-weight: bold;
+    color: #FF4400;
+  }
+  .line3 {
+    font-size: 14px;
+    font-weight: normal;
+    color: #3D3D3D;
+  }
+  .wins-chip-wrap {
+    position: absolute;
+    top: 93px;
+    // left: 56px;
+    left: 0;
+    width: 153px;
+    height: 16px;
+    line-height: 16px;
+    // border: 1px solid red;
+    display: flex;
+    justify-content: center;
+    animation: move2Bottom 1000ms;
+  }
+  .wins-chip {
+    font-size: 18px;
+    font-weight: bold;
+    color: #EE914E;
+    text-shadow: 0 4px 10px rgba($color: #f40, $alpha: 0.3);
+  }
+  .wins-chip-wrap-self {
+    left: -66px;
+    top: -50px;
+    animation: move2Top 1000ms;
+  }
+  .lose {
+    color: #A8A29D;
+  }
+  .hand-type,.self-hand-type {
+    position: absolute;
+    top: 4px;
+    left: 66px;
+    width: 70px;
+    height: 24px;
+    line-height: 24px;
+    border-radius: 5px;
+    background-color: rgba($color: #FDFDFD, $alpha: 0.75);
+    color: #359220;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 99;
+  }
+  .self-hand-type {
+    left: 88px;
+  }
+
   .filling-chip {
     font-size: 18px;
     font-weight: bold;
@@ -169,7 +315,7 @@
   .card1,
   .card2 {
     position: absolute;
-    z-index: 999;
+    z-index: 9;
     top: -20px;
   }
 
