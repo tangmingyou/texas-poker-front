@@ -1,14 +1,10 @@
-import React, { Component, useState } from 'react'
-import { View, Text, Button, Image, Radio, RadioGroup, Label, Slider,Head } from '@tarojs/components'
+import React, { Component } from 'react'
+import { View, Button, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-
-import { useSelector, useDispatch } from 'react-redux'
 
 import './lobby.scss'
 import { navigateTo, redirectTo, showToast } from '@/utils/application'
-import { increment } from '@/store/index'
 import { reqLobbyView, reqJoinTable } from '@/api/wsapi'
-import proto from '@/api/proto'
 import Title from '@/components/title'
 import coin1 from '@/assets/coin-1.png'
 import robotIcon from '@/assets/icon/robot-1.svg'
@@ -16,8 +12,6 @@ import plusIcon from '@/assets/icon/plus-2.svg';
 import refreshIcon from '@/assets/icon/refresh-fill.svg';
 
 import cnames from 'classnames';
-
-const {ReqLobbyView} = proto.api;
 
 class Lobby extends Component {
   constructor(props) {
@@ -181,7 +175,7 @@ class Lobby extends Component {
                     }}>
                       <Image
                         className={cnames("circle-avatar", {'circle-icon': player.robot || !player.id})}
-                        src={player.robot ? robotIcon : !player.id ? plusIcon : (player.avatar || this.state.defaultAvatar)}
+                        src={player.robot ? robotIcon : !player.id ? plusIcon : ((player.avatar && `/api/gm/avatar/${player.avatar}`) || this.state.defaultAvatar)}
                       />
                     </View>
                   ))

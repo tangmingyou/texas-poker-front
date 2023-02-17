@@ -84,6 +84,7 @@
     // align-content: space-around;
     flex-flow: row wrap;
     // width: 405px;
+    width: 100%;
     margin: 46px 26px 0 26px;
   }
 
@@ -253,7 +254,7 @@
     // border: 1px solid red;
     display: flex;
     justify-content: center;
-    animation: move2Bottom 1000ms;
+    animation: move2Bottom 2000ms;
   }
   .wins-chip {
     font-size: 18px;
@@ -264,7 +265,7 @@
   .wins-chip-wrap-self {
     left: -66px;
     top: -50px;
-    animation: move2Top 1000ms;
+    animation: move2Top 2000ms;
   }
   .lose {
     color: #A8A29D;

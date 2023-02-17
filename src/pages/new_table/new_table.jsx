@@ -1,6 +1,6 @@
-import React, { Component, useState } from 'react'
-import { View, Text, Image, Button, Slider } from '@tarojs/components'
-import { Popup, Picker, Range, Radio } from '@nutui/nutui-react-taro';
+import React, { useState } from 'react'
+import { View, Text, Image, Button } from '@tarojs/components'
+import { Range, Radio } from '@nutui/nutui-react-taro';
 import { useSelector } from 'react-redux'
 import Taro from '@tarojs/taro';
 
@@ -8,14 +8,11 @@ import { redirectTo } from '@/utils/application'
 import './new_table.scss'
 import Title from '@/components/title'
 import { reqCreateTable } from '@/api/wsapi'
-import proto from '@/api/proto';
 import { showToast } from '@/utils/application'
 import userIcon from '@/assets/icon/user-2.svg'
 import robotIcon from '@/assets/icon/robot-1.svg'
 import closeIcon from '@/assets/icon/close-1.svg'
 import addIcon from '@/assets/icon/add-2.svg'
-
-const { ReqCreateTable } = proto.api
 
 function NewTable() {
   const {username, nickname, avatar} = useSelector(state => state.user);
@@ -66,15 +63,15 @@ function NewTable() {
           <View className="prop-v">
             <Radio.RadioGroup value={texasType} direction="horizontal" onChange={setTexasType}>
               <Radio value={1} iconSize={Taro.pxTransform(16)}>限注德州扑克</Radio>
-              <Radio value={2} iconSize={Taro.pxTransform(16)}>底池限制德州扑克</Radio>
-              <Radio value={3} iconSize={Taro.pxTransform(16)}>无限制德州扑克</Radio>
+              <Radio disabled value={2} iconSize={Taro.pxTransform(16)}>底池限制德州扑克</Radio>
+              <Radio disabled value={3} iconSize={Taro.pxTransform(16)}>无限制德州扑克</Radio>
             </Radio.RadioGroup>
           </View>
         </View>
         <View className="prop-wrap">
           <View className="prop-k"><Text>大盲注额：</Text></View>
           <View className="prop-v">
-            <Range modelValue={bigBlind} min={2} max={200} step={2}
+            <Range modelValue={bigBlind} min={2} max={100} step={2}
               hiddenRange={true} hiddenTag={false}
               activeColor="#1BCE7D" inactiveColor="#D8D8D8"
               button={<View className="range-custom-button"><Text>{bigBlind}</Text></View>}
@@ -95,15 +92,15 @@ function NewTable() {
                   player.item === 0
                   ? <View key={j} onClick={() => choosePlayer(player.index)} className='player empty-player'><Image className="empty-icon" src={addIcon} /></View>
                   : <View key={j} className="player-wrap">
-                    <View className="player-icon"><Image className="player-icon-img" src={player.item === 1 ? userIcon : robotIcon} /></View>
-                    <View className="close-icon" onClick={(e) => {
-                      e.stopPropagation();
-                      players[player.index] = 0;
-                      setPlayers([...players]);
-                    }}><Image className="close-icon-img" src={closeIcon} /></View>
-                    <View className="player">
-                      <Text className="player-name">{player.item === 1 ? 'Player' : 'Robot'}#{player.index + 1}</Text>
-                    </View>
+                      <View className="player-icon"><Image className="player-icon-img" src={player.item === 1 ? userIcon : robotIcon} /></View>
+                      <View className="close-icon" onClick={(e) => {
+                        e.stopPropagation();
+                        players[player.index] = 0;
+                        setPlayers([...players]);
+                      }}><Image className="close-icon-img" src={closeIcon} /></View>
+                      <View className="player">
+                        <Text className="player-name">{player.item === 1 ? 'Player' : 'Robot'}#{player.index + 1}</Text>
+                      </View>
                   </View>
                 ))
               }

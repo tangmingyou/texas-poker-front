@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react'
+import React, { Component } from 'react'
 import { View, Text, Image, Input, Button } from '@tarojs/components'
 import { connect } from 'react-redux'
 import cnames from 'classnames'
@@ -59,7 +59,6 @@ class Table extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      inGame: false,
       tableNo: 0,
       stage: 0, // 游戏阶段: 1等待玩家准备;2下大盲注;3下小盲注;4发公共牌;5发第四张公共牌,轮流下注;6发第五张公共牌,轮流下注,7比牌结算
       chip: 0,
@@ -83,7 +82,7 @@ class Table extends Component {
       // winsChip: {}, // {1:14, 2:-14}
       playerNoticeLines: [], // {line1: "+6",line2: "跟注",playerId: 1}
       playerNotice: null, //{line1: "+108",line2: "加注:12221126",line3: '跟注:6', playerId: 3},
-      winsChip: {1: -20, 2: 40, 3: -20},
+      winsChip: {}, //{7: -20, 8: 40, 3: -20},
     }
   }
 
@@ -140,8 +139,10 @@ class Table extends Component {
         window.winsChip = res;
         this.setState({winsChip: res.winsChip});
         setTimeout(() => { // 输赢筹码展示一会后消失
-          this.setState({winsChip: {}});
-        }, 1300);
+          if (this.state.winsChip === res.winsChip) {
+            this.setState({winsChip: {}});
+          }
+        }, 10000);
       });
       // // 扣除大盲注(显示3秒)
       // addMsgListen('api.ResBigBlindChip', res => {
@@ -174,7 +175,6 @@ class Table extends Component {
 
     this.setState({
       playerId: res.playerId,
-      inGame: !!res.inGame,
       tableNo: res.tableNo,
       stage: res.gameStage,
       chip: res.chip || 0,
@@ -291,7 +291,8 @@ class Table extends Component {
         this.setState({betType: 1, bettingChip: betMin, betConfirmText: '跟注'});
         break;
       case 4:
-        this.setState({betType: 4, betConfirmText: '弃牌'});
+        // , betConfirmText: '弃牌'
+        this.setState({betType: 4}, this.handleBetConfirm.bind(this));
         break;
     }
   }
@@ -304,7 +305,7 @@ class Table extends Component {
 
     console.log('confirm', betType, bettingChip)
 
-    this.setState({betSubmitLoading: true}, () => {
+    this.setState({bettingChip: 0, betSubmitLoading: true}, () => {
       reqBetting(betType, bettingChip || 0)
         .then(res => {
           console.log('betRes', res);
@@ -318,12 +319,32 @@ class Table extends Component {
     })
   }
 
+  handleBettingInput(e) {
+    // const value = parseInt(e.target.value);
+    // console.log('input', typeof(value), value, this.state.bettingChip);
+    // if (typeof(value) !== 'number') {
+    //   this.setState({bettingChip: this.state.bettingChip})
+    //   return;
+    // }
+    // if (value < this.state.betMin) {
+    //   this.setState({bettingChip: this.state.betRole.bettingChip})
+    //   return showToast({title: `当前最小下注额${this.state.betRole.betMin}`})
+    // }
+    // if (value > this.state.betMax) {
+    //   this.setState({bettingChip: this.state.betRole.bettingChip})
+    //   return showToast({title: `当前最大下注额${this.state.betMax}`})
+    // }
+    // console.log('input', value, this.state.betMin, this.state.betRole.betMax);
+
+    this.setState({bettingChip: value})
+  }
+
   render() {
     const { username, nickname, avatar, defaultAvatar } = this.props.user; // useSelector(state => state.user);
     // const players = [1, 2, 3, 4, 5, 6];
     const players = this.state.players.map((player, index) => ({player, index}));
     const {
-      inGame, playerId, tableNo,
+      playerId, tableNo,
       stage, bigBlindPos, smallBlindPos,
       chip, otherPlayers,
       selfIndex, selfPlayer,
@@ -368,12 +389,12 @@ class Table extends Component {
                       }
                       {
                         // 大小盲注图标
-                        !player.id ? null : !(inGame && isIn(index, bigBlindPos, smallBlindPos)) ? null
+                        !player.id ? null : !(isIn(stage, 2,3,4,5) && isIn(index, bigBlindPos, smallBlindPos)) ? null
                         : <View className="blind-icon"><Image src={index === bigBlindPos ? bigBlindIcon : smallBlindIcon} /></View>
                       }
                       {
                         // 等待读秒，下注金额
-                        !inGame || !isIn(player.status,4,6) ? null :
+                        !isIn(stage, 2,3,4,5) || !isIn(player.status, 6) ? null :
                         <View className={cnames({"round-wrap-l": j%2===0,"round-wrap-r": j%2===1})}>
                           <View className="time-wrap">
                             <Image src={timeIcon} />
@@ -394,7 +415,7 @@ class Table extends Component {
                         </View>
                       }
                       {
-                        typeof(winsChip[player.id]) !== 'number' ? null
+                        stage === 7 && typeof(winsChip[player.id]) !== 'number' ? null
                         : <View className="wins-chip-wrap">
                           <View className={cnames("wins-chip", {'lose': winsChip[player.id] < 0, 'win': winsChip[player.id] >= 0})}><Text>{winsChip[player.id] >= 0 ? '+' : ''}{winsChip[player.id]}</Text></View>
                         </View>
@@ -416,7 +437,7 @@ class Table extends Component {
                       }
                       {/* 头像名称 */}
                       <View className={cnames("player", {'player-wait': !player.id || isIn(player.status, 3, 7) || (player.status === 1 && !player.master)})}>
-                        <View className="avatar-wrap">{!player.id ? null : <Image className="avatar" src={player.avatar || avatar} />}</View>
+                        <View className="avatar-wrap">{!player.id ? null : <Image className="avatar" src={(player.avatar ? `/api/gm/avatar/${player.avatar}` : defaultAvatar)} />}</View>
                         <View className="player-name"><Text>{player.username}</Text></View>
                       </View>
                       {
@@ -441,7 +462,7 @@ class Table extends Component {
           <View className="desktop-wrap">
             <View className="desktop-cards">
               {
-                !inGame ? null : this.state.publicCard.map((card, i) => (
+                !isIn(stage, 2,3,4,5,7) ? null : this.state.publicCard.map((card, i) => (
                   <Card flipIn={-3} key={i} w={38} h={48} dot={isIn(stage,1,2)?-3 : cardDot(card, -3)} suit={cardSuit(card)} />
                 ))
               }
@@ -480,7 +501,7 @@ class Table extends Component {
 
             {
               // 大小盲注图标
-              !(inGame && isIn(selfIndex, bigBlindPos, smallBlindPos)) ? null
+              !(isIn(stage, 2,3,4,5) && isIn(selfIndex, bigBlindPos, smallBlindPos)) ? null
               : <View className="blind-icon blind-icon-self"><Image src={selfIndex === bigBlindPos ? bigBlindIcon : smallBlindIcon} /></View>
             }
             {
@@ -507,7 +528,6 @@ class Table extends Component {
                 <Text>{selfPlayer.handType.handZh}</Text>
               </View>
             }
-
             {
               !pn || pn.playerId !== selfPlayer.id ? null : <View className="notice-wrap-l notice-wrap-self">
                 {pn.line1 && <View className="line1"><Text>{pn.line1}</Text></View>}
@@ -517,7 +537,7 @@ class Table extends Component {
             }
 
             {
-              typeof(winsChip[selfPlayer.id]) !== 'number' ? null
+              stage === 7 && typeof(winsChip[selfPlayer.id]) !== 'number' ? null
               : <View className="wins-chip-wrap wins-chip-wrap-self">
                 <View className={cnames("wins-chip", {'lose': winsChip[selfPlayer.id] < 0, 'win': winsChip[selfPlayer.id] >= 0})}>
                   <Text>{winsChip[selfPlayer.id] >= 0 ? '+' : ''}{winsChip[selfPlayer.id]}</Text>
@@ -534,7 +554,7 @@ class Table extends Component {
             <View className='u-opt'>
               <View>
                 <View className="s-info-wrap">
-                  <View className="s-avatar"><Image className="s-avatar-img" src={selfPlayer.avatar || avatar || defaultAvatar} /></View>
+                  <View className="s-avatar"><Image className="s-avatar-img" src={(selfPlayer.avatar && `/api/gm/avatar/${selfPlayer.avatar}`) || defaultAvatar} /></View>
                   <View className="s-username"><Text>{selfPlayer.username}</Text></View>
                 </View>
                 <View className="s-wallet-wrap">
@@ -552,7 +572,7 @@ class Table extends Component {
                     type="numberpad"
                     placeholder='betting chip'
                     value={bettingChip}
-                    onInput={e => this.setState({bettingChip: e.target.value})}
+                    onInput={this.handleBettingInput.bind(this)}
                   /></View>}
                   {!isIn(2, betOpts) ? null : <View className="amount-sub" onClick={this.handleSubPlusBetting.bind(this, -1, 1)}><Image className="amount-sub-icon" src={sub1Icon} /></View>}
                   {!isIn(2, betOpts) ? null : <View className="amount-plus" onClick={this.handleSubPlusBetting.bind(this, 1, 1)}><Image className="amount-plus-icon" src={plus1Icon} /></View>}

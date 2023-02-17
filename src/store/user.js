@@ -14,7 +14,7 @@ const userSlice = createSlice({
       // console.log('setUserInfo', state, payload)
       state.id = payload.id;
       state.username = payload.username;
-      state.avatar = payload.avatar;
+      state.avatar = !payload.avatar ? state.avatar : '/api/gm/avatar/' + payload.avatar;
       // return {...state, ...action.payload}
     }
   }

@@ -5,6 +5,7 @@ import { fetchOpMap, fetchRouteWs } from '@/api/api'
 import { getStorage, removeStorage } from '@/utils/storage';
 import { redirectTo, showToast } from '@/utils/application';
 import { setUserInfo } from '@/store/user'
+import { isIn } from '@/utils/collect';
 
 const { api } = proto
 
@@ -99,6 +100,16 @@ const websocket = {
         listener(res);
         return;
       }
+      // 错误消息,提示一下
+      if (wrap.op === opFail) {
+        console.error('ResFail:', res)
+        showToast({title: res.code + ":" + res.msg})
+        if (isIn(res.code, 401, 403)) { // 认证失败,异地登录
+          setTimeout(() => redirectTo({url: '/pages/login/login'}), 1200)
+        }
+        return;
+      }
+
       console.log('no handler msg:', wrap.op, res)
     }
 

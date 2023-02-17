@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react'
+import React, { useState } from 'react'
 import { View, Text, Input, Image, Button, Label } from '@tarojs/components'
 import Taro from '@tarojs/taro';
 //import { Progress } from '@nutui/nutui-react-taro';
@@ -38,7 +38,7 @@ function Login() {
         const wsRes = await fetchRouteWs();
         // 初始化 websocket 连接
         ws.init(tokenRes.data.token, opMapRes.data, wsRes.data);
-        showToast({title: '登录成功', duration: 800});
+        showToast({title: tokenRes.msg || '登录成功', duration: 800});
         // 重定向到大厅
         setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
       }catch(err) {

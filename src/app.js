@@ -35,17 +35,17 @@ window.srt = new SDK({
   /**
    * 开启打印调试信息， 默认 false
    */
-  debug: true,
+  debug: false,
 
   /**
    * 代理配置，自动代理页面浏览事件、页面离开事件、点击事件，默认 false。建议开启
    */
-  autoTrack: true,
+  autoTrack: false,
 
   /**
    * 自动开始上报，默认 true。建议开启
    */
-  autoStart: true,
+  autoStart: false,
 
   /**
    * 上报返回的钩子函数，返回 false 则代表不通过，SDK不会清除本地记录，会继续重拾
