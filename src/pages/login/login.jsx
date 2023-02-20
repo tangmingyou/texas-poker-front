@@ -10,7 +10,7 @@ import { redirectTo, showToast } from '@/utils/application'
 import iconUser from '@/assets/icon/user-3-fill.svg'
 import iconLock from '@/assets/icon/lock-2-fill.svg'
 import abIcon from '@/assets/icon/a-b.svg'
-import { setStorage } from '@/utils/storage';
+import { removeStorage, setStorage } from '@/utils/storage';
 
 /*
   登录 -> 大厅 -> 新桌面 -> 进桌面 -> profile(弹窗)
@@ -34,6 +34,7 @@ function Login() {
       //const token = "AgOjcdf3goeYDX3lwWWwkXtVpcrL-l2rX8csrRKgs3_-BC3JOx0l6nZU0MV25eIn"
       try {
         const [tokenRes, opMapRes] = await Promise.all([doLogin(state), fetchOpMap()]);
+        removeStorage('_t');
         setStorage('_t', tokenRes.data.token);
         const wsRes = await fetchRouteWs();
         // 初始化 websocket 连接
@@ -42,12 +43,12 @@ function Login() {
         // 重定向到大厅
         setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
       }catch(err) {
-        showToast({icon: 'error', title: err.msg})
+        showToast({icon: 'error', title: err})
       } finally {
         setSubmitLoding(false);
       }
     }
-    console.log(submitLoding)
+
     return (
       <View className='login'>
         <View className='ceiling'></View>

@@ -73,28 +73,29 @@ class App extends Component {
   }
 
   componentDidShow() {
-    console.log('instance', getInstance(), 'app mount')
-
-    if (!getInstance().router.path.startsWith('/pages/login/login')) {
-      // 非登录页，检查token是否存在
-      const token = getStorage('_t');
-      if (!token) {
-        setTimeout(() => redirectTo({url: '/pages/login/login'}), 500)
-      } else {
-        // 尝试连接 websocket
-        // const [opMap, wsRes] = await ;
-        Promise.all([fetchOpMap(), fetchRouteWs()])
-          .then(([opMap, wsRes]) => {
-            console.log('token', token, opMap, wsRes)
-            websocket.init(token, opMap.data, wsRes.data);
-            window.websocket = websocket;
-          })
-          .catch(err => {
-            console.log('ws conn error:', err)
-            removeStorage('_t')
-            setTimeout(() => redirectTo({url: '/pages/login/login'}), 500)
-          })
+    // console.log('instance', getInstance(), 'app mount')
+    // 检查token是否存在
+    const isLoginPage = getInstance().router.path.startsWith('/pages/login/login');
+    const token = getStorage('_t');
+    // console.log('token', isLoginPage, token)
+    if (!token) {
+      if (!isLoginPage) {
+        setTimeout(() => redirectTo({url: '/pages/login/login'}), 500);
       }
+    } else {
+      // 尝试连接 websocket
+      Promise.all([fetchOpMap(), fetchRouteWs()])
+        .then(([opMap, wsRes]) => {
+          // console.log('token', token, opMap, wsRes)
+          websocket.init(token, opMap.data, wsRes.data);
+          window.websocket = websocket;
+          setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 500);
+        })
+        .catch(err => {
+          console.log('ws conn error:', err)
+          removeStorage('_t')
+          setTimeout(() => redirectTo({url: '/pages/login/login'}), 500)
+        })
     }
   }
 

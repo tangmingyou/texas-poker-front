@@ -290,10 +290,11 @@ class Table extends Component {
       case 1: // 1跟注,2加注(-[0]+),3All-In,4弃牌,5过牌
         this.setState({betType: 1, bettingChip: betMin, betConfirmText: '跟注'});
         break;
-      case 4:
-        // , betConfirmText: '弃牌'
+      case 4: // 弃牌
         this.setState({betType: 4}, this.handleBetConfirm.bind(this));
         break;
+      case 5: // 过牌
+        this.setState({betType: 5}, this.handleBetConfirm.bind(this));
     }
   }
 
@@ -596,8 +597,8 @@ class Table extends Component {
                           !isIn(4, betOpts) ? <Button className="ctl-opt-btn-2 ctl-opacity0">弃牌</Button>
                           : <Button onClick={this.handleBetting.bind(this, 4)} className="ctl-opt-btn-2">弃牌</Button>
                         }</View>
-                        <View className="ctl-opt" style={{opacity: 0}}>{
-                          !isIn(5, betOpts)? <Button className="ctl-opt-btn-1 ctl-opacity0">过牌</Button>
+                        <View className="ctl-opt">{
+                          !isIn(5, betOpts) ? <Button className="ctl-opt-btn-1 ctl-opacity0">过牌</Button>
                           : <Button onClick={this.handleBetting.bind(this, 5)} className="ctl-opt-btn-1">过牌</Button>
                         }</View>
                         <View className="ctl-opt">{

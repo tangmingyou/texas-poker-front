@@ -39,10 +39,11 @@ const fetch = function (method, url, params) {
                 retryTimes: 0,
                 complete(res) {
                     if (res.statusCode === 401 || res.statusCode === 403 || res.statusCode === 422) {
-                        // 跳登录
-                        reLaunch({
-                            url: "/pages/login/login"
-                        })
+                        if (url !== '/api/auth/authorize') {
+                          // 跳登录
+                          reLaunch({url: "/pages/login/login"});
+                        }
+                        return reject(res.data);
                     }
 
                     if (res.statusCode !== 200 || res.data.code) { // || !res.data
