@@ -53,8 +53,7 @@ class Lobby extends Component {
         reqLobbyView()
           .then(res => {
             this.setState({tables: res.tables}, () => {
-              console.log('redirect...', res)
-              if (res.tableNo) {
+              if (res.curTableNo) {
                 redirectTo({url: '/pages/table/table'});
               }
             })
