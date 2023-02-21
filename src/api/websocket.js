@@ -11,19 +11,24 @@ const { api } = proto
 
 const websocket = {
   conn: null,
-  status: 0, // 0未初始,1打开,2已认证,3关闭 TODO 未连接,连接中 方法等待队列
-  seq: 1, // 消息序号
+  status: 0, // 0未初始,1打开,2已认证,3关闭,4连接中 TODO 未连接
+  token: '',
+  seq: 1, // 消息序号,递增
   offset: 0,
   opFail: 0,
   opSuccess: 0,
   opPathMap: {},
   nameOpMap: {},
+  wsAddr: '',
   // 消息监听列表
   msgListener: {}, // {op: func}
   waitInitCalls: [],
-  init(token, { offset, opFail, opSuccess, opPathMap, nameOpMap }, { wsAddr }) {
-
-    // TODO 连接状态判定
+  reconnectInterval: -1,
+  init(token, { offset, opFail, opSuccess, opPathMap, nameOpMap }, { wsAddr }, callback) { // callback 连接失败不一定调用
+    this.status = 4;
+    callback = callback || (() => {});
+    // 连接状态判定
+    this.token = token;
     this.offset = offset || 0;
     this.opFail = opFail;
     this.opSuccess = opSuccess;
@@ -39,9 +44,12 @@ const websocket = {
     console.log(this)
     ws.binaryType = 'arraybuffer'
     ws.onopen = (e) => {
+      // 关闭定时重连
+      clearInterval(this.reconnectInterval);
+
       this.status = 1;
       // 连接后立即认证连接
-      const req = api.ReqIdentity.create({ token })
+      const req = api.ReqIdentity.create({ token });
       // const reqBuffer = api.ReqIdentity.encode(req).finish()
       this.send(req, res => {
         this.status = 2;
@@ -49,8 +57,8 @@ const websocket = {
         // window.res = res;
         // console.log(store, setUserInfo(res))
         store.dispatch(setUserInfo(res.toJSON()));
-
         console.log('identity success:', res)
+        try { callback(null) } catch(e) { console.error('error:', e); }
 
         // 依次发送等待连接的消息队列
         for (let i = 0; i < this.waitInitCalls.length; i++) {
@@ -63,8 +71,29 @@ const websocket = {
         removeStorage('_t')
         showToast({title: err})
         console.error('连接认证失败:', err)
+
+        try { callback(err) } catch(e) { console.error('error:', e); }
       })
     }
+
+    ws.onerror = (a, b, c) => {
+      this.status = 3;
+      console.log('ws error:', a, b, c)
+
+      this.reconnectInterval = setInterval(() => {
+        this.reconnect();
+      }, Math.random() * 3 + 3);
+    }
+
+    ws.onclose = e => {
+      this.status = 3;
+      console.log('ws close', e)
+
+      this.reconnectInterval = setInterval(() => {
+        this.reconnect();
+      }, Math.random() * 3 + 3);
+    }
+
     ws.onmessage = (e) => {
       // console.log('msg:', e.data)
       const wrap = api.ProtoWrap.decode(new Uint8Array(e.data))
@@ -112,22 +141,17 @@ const websocket = {
 
       console.log('no handler msg:', wrap.op, res)
     }
-
-    ws.onerror = (a, b, c) => {
-      this.status = 3;
-      console.log('ws error:', a, b, c)
-      // var interval = setInterval(() => {
-      //   this.reconnect();
-      // }, Math.random() * 3);
-    }
-
-    ws.onclose = e => {
-      this.status = 3;
-      console.log('ws close', e)
-    }
   },
+  // 重新连接，
   reconnect() {
-
+    if (this.status === 4) {
+      return;
+    }
+    console.log('ws reconnecting...');
+    // TODO store 状态
+    this.init(this.token, this, this, err => {
+      console.log('reconnect end:', err)
+    });
   },
   waitCall: {}, // 等待响应的 callback 列表
   send(msg, resCall, errCall) {
