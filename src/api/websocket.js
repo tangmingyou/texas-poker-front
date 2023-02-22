@@ -34,6 +34,7 @@ const websocket = {
     this.opSuccess = opSuccess;
     this.opPathMap = opPathMap || {};
     this.nameOpMap = nameOpMap || {};
+    this.wsAddr = wsAddr;
     // window.proto = proto;
 
     const ws = new WebSocket(`ws://${wsAddr}/api/conn/ws`)
@@ -46,6 +47,7 @@ const websocket = {
     ws.onopen = (e) => {
       // 关闭定时重连
       clearInterval(this.reconnectInterval);
+      this.reconnectInterval = -1;
 
       this.status = 1;
       // 连接后立即认证连接
@@ -80,18 +82,19 @@ const websocket = {
       this.status = 3;
       console.log('ws error:', a, b, c)
 
-      this.reconnectInterval = setInterval(() => {
-        this.reconnect();
-      }, Math.random() * 3 + 3);
+      // this.reconnectInterval = setInterval(() => {
+      //   this.reconnect();
+      // }, Math.random() * 3 + 3);
     }
 
     ws.onclose = e => {
       this.status = 3;
       console.log('ws close', e)
-
-      this.reconnectInterval = setInterval(() => {
-        this.reconnect();
-      }, Math.random() * 3 + 3);
+      if (this.reconnectInterval < 0) {
+        this.reconnectInterval = setInterval(() => {
+          this.reconnect();
+        }, Math.random() * 3 + 4);
+      }
     }
 
     ws.onmessage = (e) => {
