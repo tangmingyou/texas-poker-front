@@ -1,4 +1,4 @@
-const target = 'http://localhost:9999';
+const target = 'http://localhost:3999';
 
 module.exports = {
   env: {
@@ -10,8 +10,8 @@ module.exports = {
   h5: {
     devServer: {
       //host: '0.0.0.0',
-      host: '192.168.110.53',
-      // host: '192.168.3.104',
+      // host: '192.168.110.53',
+      host: '192.168.3.104',
       port: 10086,
       // 设置代理来解决 H5 请求的跨域问题
       proxy: {
