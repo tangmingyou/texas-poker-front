@@ -42,7 +42,6 @@ const websocket = {
       this.conn.close();
     }
     this.conn = ws
-    console.log(this)
     ws.binaryType = 'arraybuffer'
     ws.onopen = (e) => {
       // 关闭定时重连
@@ -192,7 +191,7 @@ export const addMsgListen = (type, call) => {
     websocket.waitInitCalls.push(() => addMsgListen(type, call));
     return;
   }
-  console.log('add listen...', type)
+  // console.log('add listen...', type)
   const op = websocket.nameOpMap[type];
   if (op === undefined) {
     console.error(`not found listen msg type [${type}] for all type:`, websocket.nameOpMap);
