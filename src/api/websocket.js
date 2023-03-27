@@ -25,6 +25,7 @@ const websocket = {
   msgListener: {}, // {op: func}
   waitInitCalls: [],
   reconnectInterval: -1,
+  pingInterval: -1,
   closeConn() {
     if (this.conn) {
       const conn = this.conn;
@@ -100,6 +101,10 @@ const websocket = {
         this.closeConn();
         this.status = 3;
         store.dispatch(disconnect());
+
+        clearInterval(this.reconnectInterval);
+        clearInterval(this.pingInterval);
+
         console.log('ws connect failed.');
         reject('ws connect failed!');
       }
@@ -108,6 +113,8 @@ const websocket = {
         this.status = 3;
         store.dispatch(disconnect());
         console.log('ws connection close.')
+
+        clearInterval(this.pingInterval);
 
         if (this.conn === ws) {
           this.reconnectPolicy();
@@ -124,13 +131,19 @@ const websocket = {
           console.error('unknow res op:', wrap.op)
           return
         }
-        const res = proto[opPath[0]][opPath[1]].decode(wrap.body)
+        const type = proto[opPath[0]][opPath[1]];
+        const res = type.decode(wrap.body)
         // const res = api.ResIdentity.decode(wrap.body)
         console.log('res msg:',  res)
         if (wrap.reqMs > 0) {
           const ttl = Date.now() - wrap.reqMs;
           store.dispatch(setTTL(ttl));
           // console.log('ping:', ttl + "ms")
+
+          // 向后延迟10s -> ping
+          if (type !== api.Pong) {
+            this.runPingInterval();
+          }
         }
 
         if (wrap.seq !== 0) {
@@ -199,6 +212,20 @@ const websocket = {
     }, 3000);
   },
   waitCall: {}, // 等待响应的 callback 列表
+  runPingInterval() {
+    clearInterval(this.pingInterval);
+    this.pingInterval = setInterval(async () => {
+      this.send(api.Ping.create({ms: Date.now()}),
+        pong => {
+          const ttl = Date.now() - pong.pingMs;
+          store.dispatch(setTTL(ttl));
+        },
+        err => {
+          console.log('ping error:', err)
+        }
+      );
+    }, 10000);
+  },
   send(msg, resCall, errCall) {
     window.msg = msg;
     // 不是认证消息且连接未认证，将请求放到等待队列

@@ -12,24 +12,96 @@
   }
 
   .page-title {
-    padding: 0 32px;
+    padding: 0 14px;
     height: 46px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
-
+    position: relative;
+    .title-left {
+      display: flex;
+      justify-content: flex-start;
+    }
     .icon {
       width: 34px;
       height: 30px;
       // font-size: 40px;
     }
-
-    .title {
-      font-size: 18px;
-      color: #ffffff;
+    .net-wrap {
+      display: flex;
+      align-items: center;
+      margin-left: 12px;
+    }
+    .net-disconnect,.net-connecting,.net-connected {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background-color: #f40;
+    }
+    .net-disconnect {
+      background-color: #F64B4B;
+    }
+    .net-connecting {
+      background-color: #99ADCB;
+    }
+    .net-connected {
+      background-color: #1BCE7D;
+    }
+    .net-connected-high {
+      background-color: #EED87D;
+    }
+    .ttl {
+      margin-left: 4px;
+      font-weight: normal;
+      font-size: 12px;
     }
 
+    .title,.title1 {
+      font-size: 18px;
+      color: #000;
+      // align-self: center;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: -1;
+      text-align: center;
+      line-height: 46px;
+    }
+    .title-right {
+      display: flex;
+    }
+    .profile {
+      margin-right: 8px;
+    }
+    .username {
+      font-size: 12px;
+      text-align: right;
+      color: #3D3D3D;
+      font-weight: bold;
+      font-weight: normal;
+      margin-top: 0px;
+      line-height: 28px;
+    }
+    .balance-wrap {
+      font-weight: bold;
+      color: #EE914E;
+      font-size: 12px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      line-height: 14px;
+    }
+    .balance-icon {
+      height: 15px;
+      width: 15px;
+    }
+    .balance {
+      margin-left: 2px;
+    }
     .title-avatar-wrap {
       width: 48px;
       height: 48px;
@@ -43,10 +115,6 @@
       // height: 32px;
       border-radius: 50%;
       margin-top: 2px;
-    }
-    .username {
-      font-size: 12px;
-      font-weight: normal;
     }
   }
 }

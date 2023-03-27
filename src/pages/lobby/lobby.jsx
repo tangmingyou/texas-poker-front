@@ -84,7 +84,7 @@ class Lobby extends Component {
 
     return (
       <View>
-        <Title title={"Lobby!!"} bgColor={true} leftSolt={
+        <Title title={("Lobby","")} bgColor={true} leftSolt={
           <Image className={cnames("refresh-icon", {'refresh-icon-rotate': this.state.lobbyLoading})}
             src={refreshIcon}
             onClick={this.handleReqLobbyView}

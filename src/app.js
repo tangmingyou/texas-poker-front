@@ -85,10 +85,10 @@ class App extends Component {
     } else {
       // 尝试连接 websocket
       Promise.all([fetchOpMap(), fetchRouteWs()])
-        .then(([opMap, wsRes]) => {
-          // console.log('token', token, opMap, wsRes)
-          websocket.init(token, opMap.data, wsRes.data);
-          window.websocket = websocket;
+        .then(async ([opMapRes, wsRes]) => {
+          const res = await websocket.init(opMapRes.data, wsRes.data);
+          console.log('ws identity success:', res)
+          // window.websocket = websocket;
           setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 500);
         })
         .catch(err => {
