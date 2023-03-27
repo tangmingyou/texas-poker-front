@@ -38,7 +38,8 @@ function Login() {
         setStorage('_t', tokenRes.data.token);
         const wsRes = await fetchRouteWs();
         // 初始化 websocket 连接
-        ws.init(tokenRes.data.token, opMapRes.data, wsRes.data);
+        const res = await ws.init(opMapRes.data, wsRes.data);
+        console.log('ws login success:', res)
         showToast({title: tokenRes.msg || '登录成功', duration: 800});
         // 重定向到大厅
         setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
