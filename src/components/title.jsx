@@ -3,7 +3,8 @@ import cnames from 'classnames';
 import { useSelector } from 'react-redux';
 import { View, Text, Image } from '@tarojs/components';
 import { Menu, MenuItem } from '@nutui/nutui-react-taro';
-import { navigateBack } from '@/utils/application';
+import { navigateBack, showToast } from '@/utils/application';
+import websocket from '@/api/websocket'
 import left from '@/assets/icon/left-1.svg';
 import './style/title.scss';
 
@@ -14,6 +15,14 @@ function Title(props) {
     ...state.user, ...state.conn
   }));
   const { leftSolt, leftIcon, onLeftClick, rightSolt } = props;
+
+  function reconnectNet(netStatus) {
+    if (netStatus === 1) {
+      console.log('reconnect net.')
+      websocket.reconnectPolicy();
+    }
+  }
+
   return (
     <View>
       <View className={props.bgColor ? "page-top bgc" : "page-top"}>
@@ -22,14 +31,18 @@ function Title(props) {
           <View className="title-left">
             {leftSolt || <Image className="icon" src={leftIcon || left} onClick={onLeftClick || navigateBack} />}
             {/*1已断开,2连接中,3已连接*/}
-            <View className="net-wrap">
+            <View className="net-wrap" onClick={reconnectNet.bind(null, netStatus)}>
               <View className={cnames('', {
                 'net-disconnect': netStatus === 1,
                 'net-connecting': netStatus === 2,
                 'net-connected': netStatus === 3,
                 'net-connected-high': netStatus === 3 && ttl > 500,
               })}></View>
-              <View className="ttl">{ttl + 'ms'}</View>
+              <View className="ttl">{
+                netStatus === 3 ? ttl + 'ms'
+                : netStatus === 2 ? "连接中..."
+                : netStatus === 1 ? "离线(点击重连)" : "未知状态"
+              }</View>
             </View>
           </View>
           <View className={props.colorStyle ? "title" : "title1"}>

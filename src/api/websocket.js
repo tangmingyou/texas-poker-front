@@ -12,7 +12,7 @@ const { api } = proto
 
 const websocket = {
   conn: null,
-  status: 0, // 0未初始,1打开,2已认证,3关闭,4连接中 TODO 未连接
+  status: 0, // 0未初始,1打开,2已认证,3关闭,4连接中,5等待重连
   token: '',
   seq: 1, // 消息序号,递增
   offset: 0,
@@ -33,7 +33,7 @@ const websocket = {
       conn.close();
     }
   },
-  init: async function({ offset, opFail, opSuccess, opPathMap, nameOpMap }, { wsAddr }) { // callback 连接失败不一定调用
+  init: async function({ offset, opFail, opSuccess, opPathMap, nameOpMap }, { wsAddr }) {
     // this.status = 0;
     this.offset = offset || 0;
     this.opFail = opFail;
@@ -70,7 +70,6 @@ const websocket = {
           store.dispatch(connected());
           store.dispatch(setUserInfo(res.toJSON()));
           // console.log('identity success:', res)
-          try { callback(null) } catch(e) { console.error('error:', e); }
 
           // 依次发送等待连接的消息队列
           for (let i = 0; i < this.waitInitCalls.length; i++) {
@@ -92,34 +91,32 @@ const websocket = {
           showToast({title: err});
           console.error('连接认证失败:', err);
           reject('连接认证失败:' + err);
-
-          // try { callback(err) } catch(e) { console.error('ws identity callback error: ', e); }
         })
       }
 
       ws.onerror = e => {
         this.closeConn();
-        this.status = 3;
-        store.dispatch(disconnect());
-
-        clearInterval(this.reconnectInterval);
+        if (this.status !== 5) {
+          this.status = 3;
+          clearInterval(this.reconnectInterval);
+        }
         clearInterval(this.pingInterval);
 
+        store.dispatch(disconnect());
         console.log('ws connect failed.');
         reject('ws connect failed!');
       }
 
       ws.onclose = e => {
-        this.status = 3;
+        clearInterval(this.pingInterval);
         store.dispatch(disconnect());
         console.log('ws connection close.')
 
-        clearInterval(this.pingInterval);
-
-        if (this.conn === ws) {
-          this.reconnectPolicy();
-          // this.reconnectInterval = setInterval(() => {
-          // }, Math.random() * 3 + 4);
+        if (this.status !== 5) {
+          this.status = 3;
+          if (this.conn === ws) {
+            this.reconnectPolicy();
+          }
         }
       }
 
@@ -188,28 +185,54 @@ const websocket = {
   },
   // 重新连接，
   reconnectPolicy() {
-    if (this.reconnectInterval < 0 && this.status === 4) {
+    if (this.status !== 3) {
+      if (isIn(this.status, 4, 5)) {
+        store.dispatch(connecting());
+      }
       return;
     }
-    this.reconnectInterval = setInterval(async () => {
+    this.status = 5;
+    store.dispatch(connecting());
+    const reconnect = async () => {
       console.log('ws reconnecting...');
       const token = getStorage('_t');
       if (!token) {
+        this.status = 3
         clearInterval(this.reconnectInterval);
         this.reconnectInterval = -1;
         // 无token跳转到login
         setTimeout(() => redirectTo({url: '/pages/login/login'}), 500);
         return;
       }
+
+      const res = await this.connect();
+      console.log('reconnect success:', res);
+      // this.status = 3
+      clearInterval(this.reconnectInterval);
+      this.reconnectInterval = -1;
+
+      // try {
+      // }catch(err) {
+      //   console.log('reconnect error:', err);
+      // }
+    }
+    setTimeout(async () => {
       try {
-        const res = await this.connect();
-        console.log('reconnect success:', res);
-        clearInterval(this.reconnectInterval);
-        this.reconnectInterval = -1;
+        await reconnect();
       }catch(err) {
-        console.log('reconnect error:', err);
+        console.log('first reconnect failed try 3s later.', err);
+
+        // 后每3s重连下
+        this.reconnectInterval = setInterval(async () => {
+          try {
+            await reconnect();
+          }catch(err) {
+            console.log('reconnect failed.', err);
+          }
+        }, 10000);
       }
-    }, 3000);
+      // 首次重连随机时长 2-6s
+    }, (parseInt(Math.random() * 5) + 2) * 1000);
   },
   waitCall: {}, // 等待响应的 callback 列表
   runPingInterval() {
@@ -221,7 +244,7 @@ const websocket = {
           store.dispatch(setTTL(ttl));
         },
         err => {
-          console.log('ping error:', err)
+          console.error('ping error:', err);
         }
       );
     }, 10000);

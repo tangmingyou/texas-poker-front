@@ -56,7 +56,7 @@ function NewTable() {
 
   return (
     <View className="nt">
-      <Title title={"Create New Table"} bgColor={true} />
+      <Title title={""} bgColor={true} />
       <View className="game-props">
         <View className="prop-wrap">
           <View className="prop-k"><Text>牌局类型：</Text></View>

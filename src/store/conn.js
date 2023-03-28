@@ -14,7 +14,7 @@ const connSlice = createSlice({
       state.status = 3;
     },
     disconnect: state => {
-      state.status = 4;
+      state.status = 1;
     },
     setTTL: (state, action) => {
       state.ttl = action.payload;
