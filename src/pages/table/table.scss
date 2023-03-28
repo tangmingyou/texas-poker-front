@@ -55,6 +55,25 @@
     transform: translateY(0%);
   }
 }
+@keyframes alarmSwing {
+  0% {
+    transform: rotate(10deg);
+  }
+
+  25% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(10deg);
+  }
+}
+
 
 .translate-2l {
   animation: translate2Left 1000ms;
@@ -177,18 +196,25 @@
     color: #1BCE7D;
     font-weight: bold;
     text-align: center;
-    line-height: 10px;
+    line-height: 14px;
+    display: flex;
+    flex-direction: column;
   }
   .time-icon {
     width: 36px;
     height: 36px;
+  }
+  .time-icon-swing {
+    animation: alarmSwing 0.3s infinite;
   }
   .time-wrap-self {
     margin-top: -46px;
     margin-left: -15px;
     line-height: 14px;
   }
-
+  .time-wran {
+    color: #EED87D;
+  }
   .notice-wrap-l,.notice-wrap-r {
     position: absolute;
     top: 0px;

@@ -21,6 +21,8 @@ import sub1Icon from '@/assets/icon/sub-1.svg'
 import closeIcon from '@/assets/icon/close-1.svg'
 
 import timeIcon from '@/assets/icon/time-fill.svg'
+import clockIcon from '@/assets/icon/clock.svg'
+import clockWarnIcon from '@/assets/icon/clock_warn.svg'
 import crownIcon from '@/assets/icon/crown.svg'
 import crownDarkIcon from '@/assets/icon/crown_dark.svg'
 import bigBlindIcon from '@/assets/icon/big_blind.svg'
@@ -83,6 +85,9 @@ class Table extends Component {
       playerNoticeLines: [], // {line1: "+6",line2: "跟注",playerId: 1}
       playerNotice: null, //{line1: "+108",line2: "加注:12221126",line3: '跟注:6', playerId: 3},
       winsChip: {}, //{7: -20, 8: 40, 3: -20},
+
+      betSecondLimit: -1,
+      betSecondInterval: -1,
     }
   }
 
@@ -171,7 +176,28 @@ class Table extends Component {
     const players = res.players.map((player, index) => ({player, index}));
     const otherPlayers = players.filter(({player}) => player.id !== res.playerId);
     const self = players.find(({player}) => player.id === res.playerId);
+    const {player : bettingPlayer} = players.find(({player}) => isIn(player.status, 4, 6)) || {player: null};
     const {index: selfIndex, player: selfPlayer} = self || {player: {handCard: [], betRole: {}}};
+
+    // 出牌倒计时处理
+    let betSecondLimit = -1;
+    let betSecondInterval = -1;
+    console.log('bettingPlayer', bettingPlayer)
+    if (bettingPlayer && bettingPlayer.betRole) {
+      const {betTimeLimit: timeLimit, betSecondLimit: secondLimit} = bettingPlayer.betRole;
+      if (timeLimit) {
+        const timeSecondLimit = parseInt((timeLimit - Date.now()) / 1000);
+        betSecondLimit = timeSecondLimit - secondLimit <= 5 ? timeSecondLimit : secondLimit;
+        clearInterval(this.state.betSecondInterval);
+        betSecondInterval = setInterval(() => {
+          if (this.state.betSecondLimit <= 0) {
+            clearInterval(this.state.betSecondInterval);
+            return;
+          }
+          this.setState({betSecondLimit: this.state.betSecondLimit - 1})
+        }, 1000);
+      }
+    }
 
     this.setState({
       playerId: res.playerId,
@@ -181,14 +207,16 @@ class Table extends Component {
       masterId: res.masterId,
       bigBlindPos: res.bigBlindPos,
       smallBlindPos: res.smallBlindPos,
-
       players: res.players,
       publicCard: res.publicCard,
 
       otherPlayers,
       selfIndex,
       selfPlayer,
-      bettingChip: this.state.bettingChip !== 0 ? this.state.bettingChip : selfPlayer.betMin
+      bettingChip: this.state.bettingChip !== 0 ? this.state.bettingChip : selfPlayer.betMin,
+
+      betSecondLimit: betSecondLimit !== -1 ? betSecondLimit : this.state.betSecondLimit,
+      betSecondInterval: betSecondInterval !== -1 ? betSecondInterval : this.state.betSecondInterval,
     })
     // console.log('res game', res, res.publicCard[0].dot, ifEmpty(res.publicCard[0].dot, -3))
     window.publicCard = res.publicCard
@@ -351,6 +379,7 @@ class Table extends Component {
       selfIndex, selfPlayer,
       bettingChip, betConfirmText, betSubmitLoading,
       playerNotice: pn, winsChip,
+      betSecondLimit,
     } = this.state;
     const {betMin, betMax, betOpts} = selfPlayer.betRole || {};
     // console.log('props', this.props);
@@ -398,8 +427,8 @@ class Table extends Component {
                         !isIn(stage, 2,3,4,5) || !isIn(player.status, 6) ? null :
                         <View className={cnames({"round-wrap-l": j%2===0,"round-wrap-r": j%2===1})}>
                           <View className="time-wrap">
-                            <Image src={timeIcon} />
-                            <Text>29</Text>
+                            <Image className={cnames("time-icon", {'time-icon-swing': betSecondLimit <= 30})} src={betSecondLimit > 30 ? clockIcon : clockWarnIcon} />
+                            <Text className={cnames('time-second', {'time-wran': betSecondLimit <= 30})}>{betSecondLimit}</Text>
                           </View>
                           {/* {
                             isIn(player.status, 4, 6)
@@ -513,8 +542,8 @@ class Table extends Component {
                   !isIn(selfPlayer.status, 4, 6)
                   ? null
                   : <View className="time-wrap time-wrap-self">
-                    <Image className="time-icon" src={timeIcon} />
-                    <Text>29</Text>
+                    <Image className={cnames("time-icon", {'time-icon-swing': betSecondLimit <= 30})} src={betSecondLimit > 30 ? clockIcon : clockWarnIcon} />
+                    <Text className={cnames({'time-wran': betSecondLimit <= 30})}>{betSecondLimit}</Text>
                   </View>
                   // : <View className={cnames('filling-chip filling-chip-self')}><Text>+{selfPlayer.chip}</Text></View>
                   // , {'filling-chip-l': selfPlayer.chip > 99}
