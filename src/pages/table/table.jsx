@@ -478,7 +478,7 @@ class Table extends Component {
                             <View className="wallet-icon"><Image className="wallet-icon-img" src={coinIcon} /></View>
                             <View className="wallet-amount"><Text>{player.chip}</Text></View>
                           </View>
-                          <View className="pct"><Text>0%</Text></View>
+                          <View className="pct"><Text>{player.roundBetTotal}</Text></View>
                         </View>
                       }
                     </View>
@@ -592,18 +592,20 @@ class Table extends Component {
                     <View className="s-w-amount-icon"><Image className="s-w-amount-icon-img" src={coin2Icon} /></View>
                     <View className="s-w-amount"><Text>{selfPlayer.chip}</Text></View>
                   </View>
-                  <View className="s-w-pct"><Text>0%</Text></View>
+                  <View className="s-w-pct"><Text>{selfPlayer.roundBetTotal}</Text></View>
                 </View>
               </View>
               <View className="control">
                 <View className="ctl-opt-wrap">
-                  {isEmpty(betOpts) ? null : <View className="amount-input"><Input
-                    className="amount-input-in"
-                    type="numberpad"
-                    placeholder='betting chip'
-                    value={bettingChip}
-                    onInput={this.handleBettingInput.bind(this)}
-                  /></View>}
+                  {isEmpty(betOpts) ? null : <View className="amount-input">
+                    <Input
+                      className="amount-input-in"
+                      type="numberpad"
+                      placeholder={(betMin | betMax | 0) === 0 ? '0' : `${betMin} ~ ${betMax}`}
+                      value={bettingChip}
+                      onInput={this.handleBettingInput.bind(this)}
+                    /></View>
+                  }
                   {!isIn(2, betOpts) ? null : <View className="amount-sub" onClick={this.handleSubPlusBetting.bind(this, -1, 1)}><Image className="amount-sub-icon" src={sub1Icon} /></View>}
                   {!isIn(2, betOpts) ? null : <View className="amount-plus" onClick={this.handleSubPlusBetting.bind(this, 1, 1)}><Image className="amount-plus-icon" src={plus1Icon} /></View>}
                 </View>
