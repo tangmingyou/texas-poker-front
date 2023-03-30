@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
+import { connect } from "react-redux";
 import { View, Button, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { setBalance } from '@/store/user';
 
 import './lobby.scss'
 import { navigateTo, redirectTo, showToast } from '@/utils/application'
-import { reqLobbyView, reqJoinTable } from '@/api/wsapi'
+import { reqLobbyView, reqJoinTable, reqAccountBalance } from '@/api/wsapi'
 import Title from '@/components/title'
 import coin1 from '@/assets/coin-1.png'
 import robotIcon from '@/assets/icon/robot-1.svg'
@@ -41,6 +43,15 @@ class Lobby extends Component {
     //   .catch(err => {
     //     console.error(err)
     //   })
+
+    reqAccountBalance()
+      .then(res => {
+        this.props.setBalance(res.balance)
+      })
+      .catch(err => {
+        console.error('账户余额查询失败：', err)
+        showToast({title: err})
+      })
   }
 
   handleReqLobbyView = () => {
@@ -53,6 +64,7 @@ class Lobby extends Component {
         reqLobbyView()
           .then(res => {
             this.setState({tables: res.tables}, () => {
+              // 正在游戏中
               if (res.curTableNo) {
                 redirectTo({url: '/pages/table/table'});
               }
@@ -130,4 +142,8 @@ class Lobby extends Component {
   }
 }
 
-export default Lobby
+const mapDispatchToProps = dispatch => ({
+  setBalance: b => dispatch(setBalance(b))
+});
+
+export default connect(() =>({}), mapDispatchToProps)(Lobby)

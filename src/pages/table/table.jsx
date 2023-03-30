@@ -2,11 +2,12 @@ import React, { Component } from 'react'
 import { View, Text, Image, Input, Button } from '@tarojs/components'
 import { connect } from 'react-redux'
 import cnames from 'classnames'
+import { setBalance } from '@/store/user';
 
 import {
   reqGameFullStatus, reqKickOutTable, reqLeaveTable,
   reqReadyStart, reqDismissGameTable, reqGameStart,
-  reqCancelReady, reqBetting
+  reqCancelReady, reqBetting, reqAccountBalance
 } from '@/api/wsapi'
 import { addMsgListen, removeMsgListener } from '@/api/websocket'
 import { isEmpty } from '@/utils/validator'
@@ -160,15 +161,25 @@ class Table extends Component {
 
       // 查询当前牌桌状态
       reqGameFullStatus()
-      .then(res => {
-        this.handleResGameFullStatus(res);
-      })
-      .catch(err => {
-        showToast({title: err});
-        if (err.code === 402) {
-          setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
-        }
-      })
+        .then(res => {
+          this.handleResGameFullStatus(res);
+        })
+        .catch(err => {
+          showToast({title: err});
+          if (err.code === 402) {
+            setTimeout(() => redirectTo({url: '/pages/lobby/lobby'}), 800);
+          }
+        })
+
+      // 查询账户余额
+      reqAccountBalance()
+        .then(res => {
+          this.props.setBalance(res.balance)
+        })
+        .catch(err => {
+          console.error('账户余额查询失败：', err)
+          showToast({title: err})
+        })
     // }, 2000)
   }
 
@@ -182,7 +193,7 @@ class Table extends Component {
     // 出牌倒计时处理
     let betSecondLimit = -1;
     let betSecondInterval = -1;
-    console.log('bettingPlayer', bettingPlayer)
+    // console.log('bettingPlayer', bettingPlayer)
     if (bettingPlayer && bettingPlayer.betRole) {
       const {betTimeLimit: timeLimit, betSecondLimit: secondLimit} = bettingPlayer.betRole;
       if (timeLimit) {
@@ -657,8 +668,12 @@ class Table extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {user: state.user}
-}
+const mapStateToProps = state => ({
+  user: state.user
+});
 
-export default connect(mapStateToProps)(Table)
+const mapDispatchToProps = dispatch => ({
+  setBalance: b => dispatch(setBalance(b))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Table)

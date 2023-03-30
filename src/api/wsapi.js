@@ -27,3 +27,6 @@ export const reqDismissGameTable = () => sendPromise(api.ReqDismissGameTable.cre
 export const reqGameStart = () => sendPromise(api.ReqGameStart.create());
 // 玩家下注
 export const reqBetting = (betType, betChip) => sendPromise(api.ReqBetting.create({betType, betChip}));
+
+// 账户余额
+export const reqAccountBalance = () => sendPromise(api.ReqAccountBalance.create({}));

@@ -71,7 +71,7 @@ function NewTable() {
         <View className="prop-wrap">
           <View className="prop-k"><Text>大盲注额：</Text></View>
           <View className="prop-v">
-            <Range modelValue={bigBlind} min={2} max={100} step={2}
+            <Range modelValue={bigBlind} min={2} max={20} step={2}
               hiddenRange={true} hiddenTag={false}
               activeColor="#1BCE7D" inactiveColor="#D8D8D8"
               button={<View className="range-custom-button"><Text>{bigBlind}</Text></View>}
