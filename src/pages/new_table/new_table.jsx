@@ -63,8 +63,8 @@ function NewTable() {
           <View className="prop-v">
             <Radio.RadioGroup value={texasType} direction="horizontal" onChange={setTexasType}>
               <Radio value={1} iconSize={Taro.pxTransform(16)}>限注德州扑克</Radio>
-              <Radio disabled value={2} iconSize={Taro.pxTransform(16)}>底池限制德州扑克</Radio>
-              <Radio disabled value={3} iconSize={Taro.pxTransform(16)}>无限制德州扑克</Radio>
+              <Radio disabled value={2} iconSize={Taro.pxTransform(16)}>底池限注德州扑克</Radio>
+              <Radio disabled value={3} iconSize={Taro.pxTransform(16)}>无限注德州扑克</Radio>
             </Radio.RadioGroup>
           </View>
         </View>
@@ -111,7 +111,7 @@ function NewTable() {
         <View className="self-wrap">
           <View className="self">
             <View className="avatar-wrap"><Image className="avatar" src={avatar} /></View>
-            <View className="nickname"><Text>{nickname}</Text></View>
+            <View className="nickname"><Text>{username}</Text></View>
           </View>
         </View>
         <View className='submit-btn-wrap'>

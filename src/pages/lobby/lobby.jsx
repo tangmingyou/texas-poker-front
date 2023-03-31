@@ -7,6 +7,7 @@ import { setBalance } from '@/store/user';
 import './lobby.scss'
 import { navigateTo, redirectTo, showToast } from '@/utils/application'
 import { reqLobbyView, reqJoinTable, reqAccountBalance } from '@/api/wsapi'
+import { addMsgListen, removeMsgListener } from '@/api/websocket'
 import Title from '@/components/title'
 import coin1 from '@/assets/coin-1.png'
 import robotIcon from '@/assets/icon/robot-1.svg'
@@ -31,9 +32,18 @@ class Lobby extends Component {
     this.circleElePos = [{x:16,y:8},{x:70,y:-3},{x:110,y:28},{x:115,y:70},{x:80,y:105},{x:20,y:100},{x:-2,y:60}];
   }
 
+
+  componentWillUnmount() {
+    // 取消监听消息
+    removeMsgListener('api.ResLobbyFresh');
+  }
+
   componentDidMount() {
+    // 有新桌面创建消息监听
+    addMsgListen('api.ResLobbyFresh', this.handleReqLobbyView);
+
     // setTimeout(() => {
-      this.handleReqLobbyView();
+    this.handleReqLobbyView();
     // }, 1500)
     // fetchLobbyView()
     //   .then(res => {
@@ -87,6 +97,7 @@ class Lobby extends Component {
       // console.log('join res...', res)
     }catch(err) {
       showToast({title: err})
+      this.handleReqLobbyView();
     }
   }
 
@@ -135,7 +146,7 @@ class Lobby extends Component {
           <View key="tab-wrap" className="tab-wrap"></View>
         </View>
         <View className="bottom-btn-wrap">
-          <Button className="bottom-btn" onClick={() => navigateTo({url: '/pages/new_table/new_table'})}>Create New Table</Button>
+          <Button className="bottom-btn" onClick={() => navigateTo({url: '/pages/new_table/new_table'})}>创建新牌桌</Button>
         </View>
       </View>
     )

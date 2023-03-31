@@ -67,7 +67,7 @@ function Login() {
           <Input className='input-1' name="password" type="password" password={true} defaultValue={state.password}  placeholder="password"
             onChange={e => setState({...state, password: e.target.value})}/>
         </View>
-        <View className='input-wrap'>
+        <View className='input-wrap' style={{display: 'none'}}>
           <Image className='input-icon' src={abIcon} />
           <Input className='input-2' name="captcha" type="text" defaultValue={state.password}  placeholder="captcha"
             onChange={e => setState({...state, captcha: e.target.value})}/>
@@ -77,6 +77,12 @@ function Login() {
         <View>
           <Button className='submit-btn' loading={submitLoding} onClick={handleSubmit}>START</Button>
         </View>
+        <View className='title-line' style={{
+          'textAlign': 'center',
+          'marginTop': Taro.pxTransform(12),
+          'color': '#3d3d3d',
+          }}
+        ><Text className='title-2'>新用户自动注册</Text></View>
         <View style={{display: 'none'}}>
           <Button type="primary" style={{width: '160px'}} onClick={handleSubmit}>提交</Button>
           <Button type="primary" style={{width: '160px'}} onClick={() => {Taro.navigateTo({url:'/pages/lobby/lobby'})}}>跳转</Button>
