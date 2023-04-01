@@ -1,27 +1,29 @@
 import React, { Component } from 'react'
 import { connect } from "react-redux";
-import { View, Button, Image } from '@tarojs/components'
+import { View, Text, Button, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import cnames from 'classnames';
 import { setBalance } from '@/store/user';
+import { setRouteName } from '@/store/app';
 
-import './lobby.scss'
 import { navigateTo, redirectTo, showToast } from '@/utils/application'
 import { reqLobbyView, reqJoinTable, reqAccountBalance } from '@/api/wsapi'
 import { addMsgListen, removeMsgListener } from '@/api/websocket'
 import Title from '@/components/title'
-import coin1 from '@/assets/coin-1.png'
+import coin1 from '@/assets/coin-0.svg'
 import robotIcon from '@/assets/icon/robot-1.svg'
 import plusIcon from '@/assets/icon/plus-2.svg';
 import refreshIcon from '@/assets/icon/refresh-fill.svg';
+import coinIcon from '@/assets/icon/coin-1.svg';
 
-import cnames from 'classnames';
+import './lobby.scss'
+import { isIn } from '@/utils/collect';
 
 class Lobby extends Component {
   constructor(props) {
     super(props)
     this.state = {
       tables: [],
-      defaultAvatar: "https://img0.baidu.com/it/u=2477829979,2171947490&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
       lobbyLoading: false,
       gameType: [
         {value: 1, text: '', checked: false},
@@ -32,10 +34,13 @@ class Lobby extends Component {
     this.circleElePos = [{x:16,y:8},{x:70,y:-3},{x:110,y:28},{x:115,y:70},{x:80,y:105},{x:20,y:100},{x:-2,y:60}];
   }
 
-
   componentWillUnmount() {
     // 取消监听消息
     removeMsgListener('api.ResLobbyFresh');
+  }
+
+  componentDidShow() {
+    this.props.setRouteName('lobby');
   }
 
   componentDidMount() {
@@ -117,44 +122,60 @@ class Lobby extends Component {
         <View className="tab">
           {
             this.state.tables.map((table, i) => (
-              <View key={table.tableNo} className="tab-wrap" onClick={this.handleJoinTable.bind(this, table)}>
-              <View className="circle-wrap">
-                <View className="circle-inner"><Image className="inner-coin" src={coin1} /></View>
-                {
-                  table.players.map((player, j) => (
-                    <View key={j} className="circle-item" style={{
-                      position: 'absolute',
-                      left: Taro.pxTransform(this.circleElePos[j].x),
-                      top: Taro.pxTransform(this.circleElePos[j].y)
-                    }}>
-                      <Image
-                        className={cnames("circle-avatar", {'circle-icon': player.robot || !player.id})}
-                        src={player.robot ? robotIcon : !player.id ? plusIcon : ((player.avatar && `/api/gm/avatar/${player.avatar}`) || this.state.defaultAvatar)}
-                      />
+              <View className='tab-box'>
+                <View key={table.tableNo} className="tab-wrap" onClick={this.handleJoinTable.bind(this, table)}>
+                  <View className="tab-no">#{table.tableNo}</View>
+                  <View className="circle-wrap">
+                    <View className="circle-inner"><Image className="inner-coin" src={coin1} /></View>
+                    {
+                      table.players.map((player, j) => (
+                        <View key={j} className="circle-item" style={{
+                          position: 'absolute',
+                          left: Taro.pxTransform(this.circleElePos[j].x),
+                          top: Taro.pxTransform(this.circleElePos[j].y)
+                        }}>
+                          <Image
+                            className={cnames("circle-avatar", {'circle-icon': player.robot || !player.id})}
+                            src={player.robot ? robotIcon : !player.id ? plusIcon : ((player.avatar && `/api/gm/avatar/${player.avatar}`) || this.props.defaultAvatar)}
+                          />
+                        </View>
+                      ))
+                    }
+                  </View>
+                  <View className="tab-no-wrap">
+                    <View className={cnames("tab-sc tab-sc-1", {
+                      'tab-sc-1-full': table.playerNum === table.playerLimit,
+                      'tab-sc-1-gaming': !isIn(table.stage, 1, 7),
+                      })}
+                    >{!isIn(table.stage, 1, 7) ? '进行中' : `[${table.playerNum}/${table.playerLimit}]`}</View>
+                    <View className={cnames("tab-sc tab-sc-2", {'tab-sc-2-nolimit': table.texasType === 3})}>{table.texasType === 3 ? '无限注' : '限注'}</View>
+                    <View className="tab-sc tab-sc-3">
+                      <Image className="tab-sc-3-icon" src={coinIcon} />
+                      <Text>{table.bigBland}/{table.limitInAmount}</Text>
                     </View>
-                  ))
-                }
+                  </View>
+                </View>
               </View>
-              <View className="tab-no-wrap">
-                <View className="tab-no">#10013</View>
-                <View className="tab-sc">5/7</View>
-              </View>
-            </View>
             ))
           }
 
           <View key="tab-wrap" className="tab-wrap"></View>
         </View>
         <View className="bottom-btn-wrap">
-          <Button className="bottom-btn" onClick={() => navigateTo({url: '/pages/new_table/new_table'})}>创建新牌桌</Button>
+          <Button className="bottom-btn" onClick={() => navigateTo({url: '/pages/new_table/new_table'})}>新牌桌</Button>
         </View>
       </View>
     )
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  setBalance: b => dispatch(setBalance(b))
+const mapStateToProps = state => ({
+  defaultAvatar: state.user.defaultAvatar
 });
 
-export default connect(() =>({}), mapDispatchToProps)(Lobby)
+const mapDispatchToProps = dispatch => ({
+  setBalance: b => dispatch(setBalance(b)),
+  setRouteName: () => dispatch(setRouteName('lobby')),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Lobby)

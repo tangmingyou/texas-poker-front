@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { View, Text, Input, Image, Button, Label } from '@tarojs/components'
 import Taro from '@tarojs/taro';
+// import { useDispatch } from 'react-redux';
+// import { setRouteName } from '@/store/app';
 //import { Progress } from '@nutui/nutui-react-taro';
 //import { Form, Input, TextArea, Cell, Button, Row, Col, Image } from '@nutui/nutui-react-taro';
 import ws from '@/api/websocket'
@@ -9,6 +11,7 @@ import { doLogin, fetchOpMap, fetchRouteWs } from '@/api/api'
 import { redirectTo, showToast } from '@/utils/application'
 import iconUser from '@/assets/icon/user-3-fill.svg'
 import iconLock from '@/assets/icon/lock-2-fill.svg'
+import iconGithub from '@/assets/icon/github.svg'
 import abIcon from '@/assets/icon/a-b.svg'
 import { removeStorage, setStorage } from '@/utils/storage';
 
@@ -16,6 +19,8 @@ import { removeStorage, setStorage } from '@/utils/storage';
   登录 -> 大厅 -> 新桌面 -> 进桌面 -> profile(弹窗)
 */
 function Login() {
+    // useDispatch()(setRouteName('login'));
+
     const [state, setState] = useState({
       username: '',
       password: '',
@@ -74,15 +79,17 @@ function Login() {
           <Image className='captcha' src={captcha.src} width="107" height="36"
             onClick={() => setCaptcha({...captcha, src: captcha.origin + '?t=' + Math.random()})} />
         </View>
-        <View>
+        <View className="submit-btn-wrap">
           <Button className='submit-btn' loading={submitLoding} onClick={handleSubmit}>START</Button>
         </View>
-        <View className='title-line' style={{
-          'textAlign': 'center',
-          'marginTop': Taro.pxTransform(12),
-          'color': '#3d3d3d',
-          }}
-        ><Text className='title-2'>新用户自动注册</Text></View>
+        <View className="footer-wrap">
+          <View className='footer-line'><Text className='title-3'>新用户自动注册</Text></View>
+          <View className='footer-line'><Text className='title-3'>{'【仅供娱乐禁止赌博】'}</Text></View>
+          <a className='footer-line footer-line-github' href='https://github.com/tangmingyou/texas-poker-bk' target="_blank">
+            <Image className="footer-github" src={iconGithub} />
+            <Text className='title-3'>github</Text>
+          </a>
+        </View>
         <View style={{display: 'none'}}>
           <Button type="primary" style={{width: '160px'}} onClick={handleSubmit}>提交</Button>
           <Button type="primary" style={{width: '160px'}} onClick={() => {Taro.navigateTo({url:'/pages/lobby/lobby'})}}>跳转</Button>

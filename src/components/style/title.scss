@@ -105,8 +105,9 @@
     .title-avatar-wrap {
       width: 48px;
       height: 48px;
-      display: flex;
-      flex-direction: row;
+      // display: flex;
+      // flex-direction: row;
+      position: relative;
     }
     .avatar {
       width: 41px;
@@ -115,6 +116,54 @@
       // height: 32px;
       border-radius: 50%;
       margin-top: 2px;
+    }
+    .menus {
+      position: absolute;
+      z-index: 10;
+      top: 47px;
+      right: -14px;
+      // overflow: hidden;
+      // background-color: #1BCE7D;
+      // width: 100px;
+      // padding: 5px 5px;
+      // height: 40px;
+      border-bottom-left-radius: 6px;
+      border-end-end-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0px 4px 10px rgba($color: #000000, $alpha: 0.3);
+      display: flex;
+      flex-direction: column;
+    }
+    .menus-hide {
+      display: none;
+    }
+    .menu-item {
+      width: 90px;
+      position: relative;
+
+      &:not(:first-child) {
+        // content: " ";
+        // position: absolute;
+        // width: 80px;
+        // height: 1px;
+        // background-color: #000;
+        border-top: 1px solid #D8D8D8;
+      }
+    }
+    .menu-item-btn {
+      text-align: center;
+      color: #3D3D3D;
+      font-size: 12px;
+      line-height: 30px;
+      padding: 3px 0;
+      box-sizing: content-box;
+      // background-color: #FFF;
+      border-radius: 0;
+      &::after {
+        content: none;
+        border: 0;
+        border-radius: 0;
+      }
     }
   }
 }

@@ -1,26 +1,57 @@
 import React from 'react';
 import cnames from 'classnames';
-import { useSelector } from 'react-redux';
-import { View, Text, Image } from '@tarojs/components';
-import { Menu, MenuItem } from '@nutui/nutui-react-taro';
-import { navigateBack, showToast } from '@/utils/application';
-import websocket from '@/api/websocket'
-import left from '@/assets/icon/left-1.svg';
-import './style/title.scss';
+import { useSelector, useDispatch } from 'react-redux';
+import { switchMenuVisible } from '@/store/app';
+import { View, Text, Image, Button } from '@tarojs/components';
+// import { Menu, MenuItem } from '@nutui/nutui-react-taro';
+import { navigateBack, redirectTo, showToast } from '@/utils/application';
+import websocket from '@/api/websocket';
+import { reqLeaveTable }  from '@/api/wsapi';
+import { isIn } from '@/utils/collect';
 
+import left from '@/assets/icon/left-1.svg';
 import coinIcon from '@/assets/icon/coin-3.svg'
+import './style/title.scss';
+import { removeStorage } from '@/utils/storage';
 
 function Title(props) {
-  const {username, nickname, avatar, defaultAvatar, balance, status: netStatus, ttl} = useSelector(state => ({
-    ...state.user, ...state.conn
+  const {
+      username, avatar, defaultAvatar,
+     balance, status: netStatus, ttl,
+     routeName, menuVisible
+  } = useSelector(state => ({
+    ...state.user, ...state.conn, ...state.app
   }));
+
   const { leftSolt, leftIcon, onLeftClick, rightSolt } = props;
+
+  const dispatch = useDispatch();
 
   function reconnectNet(netStatus) {
     if (netStatus === 1) {
       console.log('reconnect net.')
       websocket.reconnectPolicy();
     }
+  }
+
+  function handleLeaveTable() {
+    dispatch(switchMenuVisible())
+    reqLeaveTable()
+      .then(res => {
+        console.log('leave', res);
+        redirectTo({url: '/pages/lobby/lobby'})
+      })
+      .catch(err => {
+        showToast({title: err})
+        console.log('leave err', err)
+      })
+  }
+
+  function handleLogout() {
+    dispatch(switchMenuVisible())
+    removeStorage('_t');
+    redirectTo({url: '/pages/login/login'});
+    websocket.closeConn();
   }
 
   return (
@@ -58,7 +89,19 @@ function Title(props) {
             </View>
             {
               rightSolt || <View className='title-avatar-wrap'>
-                <Image className='avatar' src={avatar || defaultAvatar} />
+                <View onClick={() => dispatch(switchMenuVisible())}><Image className='avatar' src={avatar || defaultAvatar} /></View>
+                <View className={cnames('menus',{'menus-hide': !menuVisible})}>
+                  {
+                    isIn(routeName, 'table') && <View className="menu-item">
+                      <Button onClick={handleLeaveTable} className="menu-item-btn">退出牌桌</Button>
+                    </View>
+                  }
+                  {
+                    isIn(routeName, 'lobby', 'new_table') && <View className="menu-item">
+                      <Button onClick={handleLogout} className="menu-item-btn">退出登录</Button>
+                    </View>
+                  }
+                </View>
               </View>
             }
           </View>

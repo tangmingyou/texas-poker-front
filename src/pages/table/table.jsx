@@ -3,6 +3,7 @@ import { View, Text, Image, Input, Button } from '@tarojs/components'
 import { connect } from 'react-redux'
 import cnames from 'classnames'
 import { setBalance } from '@/store/user';
+import { setRouteName } from '@/store/app';
 
 import {
   reqGameFullStatus, reqKickOutTable, reqLeaveTable,
@@ -90,6 +91,10 @@ class Table extends Component {
       betSecondLimit: -1,
       betSecondInterval: -1,
     }
+  }
+
+  componentDidShow() {
+    this.props.setRouteName();
   }
 
   componentWillUnmount() {
@@ -673,7 +678,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  setBalance: b => dispatch(setBalance(b))
+  setBalance: b => dispatch(setBalance(b)),
+  setRouteName: () => dispatch(setRouteName('table'))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Table)

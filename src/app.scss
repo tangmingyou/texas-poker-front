@@ -1,6 +1,13 @@
 
 @import "@nutui/nutui-react-taro/dist/style.css";
-
+body,html,h2,h3,button,input,ul,li{
+  margin: 0;
+  padding: 0;
+  color: #666;
+}
+ul,li {
+  list-style: none;
+}
 body {
   font-size: 16px;
   max-width: 800Px;
@@ -13,4 +20,24 @@ body {
   --nutui-brand-color: #1BCE7D;
   --nutui-brand-color-start: #1BCE7D;
   --nutui-brand-color-end: #1BCE7D;
+}
+a {
+  color: #2d2e2f;
+  outline: none;
+	text-decoration: none;
+}
+a:link {
+	text-decoration: none;
+}
+a:visited {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: none;
+}
+a:active {
+	text-decoration: none;
+}
+a:focus {
+	text-decoration: none;
 }

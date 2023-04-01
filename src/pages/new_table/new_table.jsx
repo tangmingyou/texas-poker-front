@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { View, Text, Image, Button } from '@tarojs/components'
 import { Range, Radio } from '@nutui/nutui-react-taro';
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
+import { setRouteName } from '@/store/app';
 import Taro from '@tarojs/taro';
 
 import { redirectTo } from '@/utils/application'
@@ -15,6 +16,8 @@ import closeIcon from '@/assets/icon/close-1.svg'
 import addIcon from '@/assets/icon/add-2.svg'
 
 function NewTable() {
+  useDispatch()(setRouteName('new_table'));
+
   const {username, nickname, avatar} = useSelector(state => state.user);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [choosingPlace, setChoosingPlace] = useState(-1);

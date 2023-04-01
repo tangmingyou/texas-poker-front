@@ -2,6 +2,7 @@ import { configureStore, createSlice } from '@reduxjs/toolkit'
 
 import connSlice from '@/store/conn'
 import userSlice from '@/store/user'
+import appSlice from '@/store/app'
 
 const counterSlice = createSlice({
     name: 'counter',
@@ -22,6 +23,7 @@ const store = configureStore({
         counter: counterSlice.reducer,
         conn: connSlice.reducer,
         user: userSlice.reducer,
+        app: appSlice.reducer,
     }
 })
 

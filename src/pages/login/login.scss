@@ -11,15 +11,39 @@
     width: 359px;
     margin: 0 auto;
   }
-
+  .footer-wrap {
+    margin-top: 12px;
+  }
+  .footer-line {
+    //padding: 6px 39px;
+    width: 359px;
+    margin: 0 auto;
+    text-align: center;
+    color: #3d3d3d;
+  }
+  .footer-line-github {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    text-decoration: underline;
+  }
+  .footer-github {
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+  }
   .title-1 {
     font-size: 36px;
     color: #EE914E;
     font-weight: bold;
   }
-
   .title-2 {
     font-size: 14px;
+  }
+  .title-3 {
+    font-size: 12px;
   }
 
   .input-wrap {
@@ -59,7 +83,10 @@
     padding: 0 0;
     margin-left: 14px;
   }
-
+  .submit-btn-wrap {
+    display: flex;
+    justify-content: center;
+  }
   .submit-btn {
     width: 360px;
     height: 42px;
